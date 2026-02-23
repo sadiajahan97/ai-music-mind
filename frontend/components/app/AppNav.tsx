@@ -17,7 +17,7 @@ export function AppNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[70px] flex items-stretch bg-[rgba(22,14,29,0.97)] backdrop-blur-[24px] border-t border-[rgba(146,19,236,0.18)] z-[100] overflow-visible"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[70px] flex items-stretch bg-[rgba(22,14,29,0.97)] backdrop-blur-xl border-t border-[rgba(146,19,236,0.18)] z-100 overflow-visible"
       style={{ maxWidth: "100vw" }}
     >
       {navItems.map((item) => {

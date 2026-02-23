@@ -153,7 +153,7 @@ export default function VoicePage() {
               <div
                 key={v.id}
                 onClick={() => setSelected(v.id)}
-                className="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 aspect-[3/4]"
+                className="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 aspect-3/4"
                 style={{
                   border: isSelected
                     ? "2px solid var(--color-primary)"

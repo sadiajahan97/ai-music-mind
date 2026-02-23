@@ -16,7 +16,7 @@ export function Hero() {
           AI-POWERED MUSIC GENERATION v2.0
         </div>
         <h1
-          className="text-5xl md:text-7xl font-extrabold leading-[1.0] tracking-tight mb-6"
+          className="text-5xl md:text-7xl font-extrabold leading-none tracking-tight mb-6"
           style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
         >
           From{" "}
