@@ -14,34 +14,32 @@ export default function SignInPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-bg-dark flex flex-col relative overflow-hidden"
-      style={{ minHeight: "100vh" }}
-    >
+    <div className="min-h-screen bg-bg-dark flex flex-col items-center relative overflow-hidden py-8 px-4">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-32 right-0 w-60 h-60 bg-pink-600/10 blur-[90px] rounded-full pointer-events-none" />
 
-      <div className="relative z-10 flex flex-col items-center pt-20 pb-6 px-6">
-        <div className="bg-linear-to-br from-primary-light to-primary p-4 rounded-2xl shadow-2xl shadow-primary/50 mb-5 anim-float">
-          <Icon
-            name="graphic_eq"
-            className="text-white"
-            style={{ fontSize: 36 }}
-            fill={1}
-          />
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center">
+        <div className="flex flex-col items-center pt-8 pb-6">
+          <div className="bg-linear-to-br from-primary-light to-primary p-4 rounded-2xl shadow-2xl shadow-primary/50 mb-5 anim-float">
+            <Icon
+              name="graphic_eq"
+              className="text-white"
+              style={{ fontSize: 36 }}
+              fill={1}
+            />
+          </div>
+          <h1
+            className="font-extrabold text-3xl tracking-tight mb-1"
+            style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+          >
+            AI Music Mind
+          </h1>
+          <p className="text-slate-400 text-sm">
+            Create studio-ready tracks with AI
+          </p>
         </div>
-        <h1
-          className="font-extrabold text-3xl tracking-tight mb-1"
-          style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
-        >
-          AI Music Mind
-        </h1>
-        <p className="text-slate-400 text-sm">
-          Create studio-ready tracks with AI
-        </p>
-      </div>
 
-      <div className="relative z-10 mx-4 glass rounded-2xl p-6">
+        <div className="w-full glass rounded-2xl p-6">
         <div
           id="auth-tabs"
           className="flex p-1 rounded-xl mb-6"
@@ -269,20 +267,21 @@ export default function SignInPage() {
             <span className="text-sm font-medium">Apple</span>
           </button>
         </div>
-      </div>
+        </div>
 
-      <div className="relative z-10 text-center mt-6 pb-8">
-        <p className="text-slate-500 text-xs">
-          By signing in you agree to our{" "}
-          <span className="text-primary">Terms</span> &{" "}
-          <span className="text-primary">Privacy Policy</span>
-        </p>
-        <Link
-          href="/"
-          className="mt-3 text-xs text-slate-600 hover:text-slate-400 transition-colors inline-block"
-        >
-          ← Back to Landing Page
-        </Link>
+        <div className="text-center mt-6 pb-8 w-full">
+          <p className="text-slate-500 text-xs">
+            By signing in you agree to our{" "}
+            <span className="text-primary">Terms</span> &{" "}
+            <span className="text-primary">Privacy Policy</span>
+          </p>
+          <Link
+            href="/"
+            className="mt-3 text-xs text-slate-600 hover:text-slate-400 transition-colors inline-block"
+          >
+            ← Back to Landing Page
+          </Link>
+        </div>
       </div>
     </div>
   );
