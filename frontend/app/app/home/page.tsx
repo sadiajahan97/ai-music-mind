@@ -9,8 +9,13 @@ export default function AppHomePage() {
     <div className="flex flex-col min-h-screen bg-bg-dark">
       <header className="sticky top-0 z-50 flex items-center justify-between px-5 py-4 glass-dark border-b border-primary/10">
         <div className="flex items-center gap-2.5">
-          <div className="bg-gradient-to-br from-primary-light to-primary p-1.5 rounded-xl">
-            <Icon name="graphic_eq" className="text-white font-bold" style={{ fontSize: 20 }} fill={1} />
+          <div className="bg-linear-to-br from-primary-light to-primary p-1.5 rounded-xl">
+            <Icon
+              name="graphic_eq"
+              className="text-white font-bold"
+              style={{ fontSize: 20 }}
+              fill={1}
+            />
           </div>
           <h2
             className="text-lg font-bold tracking-tight"
@@ -20,16 +25,21 @@ export default function AppHomePage() {
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <span className="bg-primary/20 text-primary text-[10px] font-bold px-2.5 py-1 rounded-full border border-primary/30 tracking-widest"
+          <span
+            className="bg-primary/20 text-primary text-[10px] font-bold px-2.5 py-1 rounded-full border border-primary/30 tracking-widest"
             style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
           >
             PRO
           </span>
           <Link
             href="/app/profile"
-            className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary/40 to-purple-500/40 border border-primary/30 flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-linear-to-tr from-primary/40 to-purple-500/40 border border-primary/30 flex items-center justify-center"
           >
-            <Icon name="person" className="text-primary" style={{ fontSize: 18 }} />
+            <Icon
+              name="person"
+              className="text-primary"
+              style={{ fontSize: 18 }}
+            />
           </Link>
         </div>
       </header>
@@ -47,23 +57,23 @@ export default function AppHomePage() {
               style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
             >
               From{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-primary">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-light to-primary">
                 Thought
               </span>{" "}
               to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-pink-400">
                 Track
               </span>{" "}
               in 30 Seconds.
             </h1>
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs mx-auto">
-              Create studio-ready, social-optimized music clips with the power of
-              generative AI.
+              Create studio-ready, social-optimized music clips with the power
+              of generative AI.
             </p>
             <div className="pt-2">
               <Link
                 href="/app/create"
-                className="w-full bg-gradient-to-r from-primary to-primary-light hover:opacity-90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-primary to-primary-light hover:opacity-90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
               >
                 <Icon name="auto_awesome" />
@@ -90,7 +100,11 @@ export default function AppHomePage() {
                 href={item.href}
                 className="flex flex-col items-center gap-2 p-3 glass-card rounded-xl hover:border-primary/30 transition-all"
               >
-                <Icon name={item.icon} className="text-primary" style={{ fontSize: 22 }} />
+                <Icon
+                  name={item.icon}
+                  className="text-primary"
+                  style={{ fontSize: 22 }}
+                />
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
                   {item.label}
                 </span>
@@ -111,13 +125,28 @@ export default function AppHomePage() {
           </div>
           <div className="space-y-3">
             {[
-              { icon: "edit_note", title: "Prompt", desc: "Describe your vibe, mood, or genre in plain text." },
-              { icon: "memory", title: "Generate", desc: "AI crafts a studio-quality track in under 20 seconds.", border: true },
-              { icon: "ios_share", title: "Share", desc: "Export high-fidelity audio directly to any platform." },
+              {
+                icon: "edit_note",
+                title: "Prompt",
+                desc: "Describe your vibe, mood, or genre in plain text.",
+              },
+              {
+                icon: "memory",
+                title: "Generate",
+                desc: "AI crafts a studio-quality track in under 20 seconds.",
+                border: true,
+              },
+              {
+                icon: "ios_share",
+                title: "Share",
+                desc: "Export high-fidelity audio directly to any platform.",
+              },
             ].map((item) => (
               <div
                 key={item.title}
-                className={`glass-card p-4 rounded-xl flex gap-4 items-center ${item.border ? "border-l-2 border-l-primary" : ""}`}
+                className={`glass-card p-4 rounded-xl flex gap-4 items-center ${
+                  item.border ? "border-l-2 border-l-primary" : ""
+                }`}
               >
                 <div className="size-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
                   <Icon name={item.icon} style={{ fontSize: 20 }} />
@@ -125,7 +154,9 @@ export default function AppHomePage() {
                 <div>
                   <h4
                     className="font-bold text-sm"
-                    style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                    style={{
+                      fontFamily: "var(--font-display), Syne, sans-serif",
+                    }}
                   >
                     {item.title}
                   </h4>
@@ -147,25 +178,29 @@ export default function AppHomePage() {
             <div className="h-px flex-1 bg-primary/10" />
           </div>
           <div className="rounded-2xl overflow-hidden relative">
-            <div className="aspect-video bg-gradient-to-br from-purple-900 via-primary/30 to-black flex items-center justify-center relative overflow-hidden">
+            <div className="aspect-video bg-linear-to-br from-purple-900 via-primary/30 to-black flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center gap-1.5">
                 {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7].map((d) => (
                   <WaveBar key={d} height={40 + d * 50} delay={d} />
                 ))}
               </div>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-bg-deep via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-bg-deep via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
               <div>
                 <p
                   className="text-[10px] uppercase font-bold text-primary tracking-widest"
-                  style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                  style={{
+                    fontFamily: "var(--font-display), Syne, sans-serif",
+                  }}
                 >
                   Featured Gen
                 </p>
                 <p
                   className="font-bold text-sm"
-                  style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                  style={{
+                    fontFamily: "var(--font-display), Syne, sans-serif",
+                  }}
                 >
                   &quot;Midnight Neon Synthwave&quot;
                 </p>
@@ -183,7 +218,7 @@ export default function AppHomePage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="size-7 rounded-full border-2 border-bg-dark bg-gradient-to-tr from-purple-500 to-pink-500"
+                  className="size-7 rounded-full border-2 border-bg-dark bg-linear-to-tr from-purple-500 to-pink-500"
                 />
               ))}
             </div>

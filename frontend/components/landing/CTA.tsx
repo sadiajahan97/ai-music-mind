@@ -20,7 +20,7 @@ export function CTA() {
         </p>
         <Link
           href="/signin"
-          className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-primary to-primary-light text-white font-bold rounded-2xl shadow-2xl shadow-primary/50 text-lg hover:scale-105 active:scale-95 transition-all anim-pulse"
+          className="inline-flex items-center gap-3 px-10 py-5 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-2xl shadow-2xl shadow-primary/50 text-lg hover:scale-105 active:scale-95 transition-all anim-pulse"
         >
           <Icon name="music_note" />
           Start Creating Now

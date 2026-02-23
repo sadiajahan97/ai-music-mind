@@ -13,7 +13,9 @@ const CHIP_LABELS: Record<string, string> = {
 
 export default function AssistantPage() {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([
     {
       role: "assistant",
       content:
@@ -31,7 +33,7 @@ export default function AssistantPage() {
         {
           role: "assistant",
           content:
-            "I've noted your request. In the full app, I'd adjust the track and regenerate. Try refining with phrases like \"more powerful chorus\" or \"summer vibe\"! 🎶",
+            'I\'ve noted your request. In the full app, I\'d adjust the track and regenerate. Try refining with phrases like "more powerful chorus" or "summer vibe"! 🎶',
         },
       ]);
     }, 800);
@@ -66,18 +68,32 @@ export default function AssistantPage() {
       </header>
 
       <div className="glass-dark border-b border-primary/10 px-4 py-3 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-700 flex items-center justify-center shrink-0">
-          <Icon name="music_note" className="text-white" style={{ fontSize: 18 }} fill={1} />
+        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-primary to-purple-700 flex items-center justify-center shrink-0">
+          <Icon
+            name="music_note"
+            className="text-white"
+            style={{ fontSize: 18 }}
+            fill={1}
+          />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-bold" style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}>Neon Skyline</p>
+          <p
+            className="text-sm font-bold"
+            style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+          >
+            Neon Skyline
+          </p>
           <div className="h-1 bg-primary/20 rounded-full mt-1">
             <div className="h-full bg-primary rounded-full w-[42%]" />
           </div>
         </div>
         <div className="flex gap-1">
-          <button className="px-2 py-1 text-[10px] rounded glass text-slate-400">v1</button>
-          <button className="px-2 py-1 text-[10px] rounded bg-primary text-white font-bold">v2</button>
+          <button className="px-2 py-1 text-[10px] rounded glass text-slate-400">
+            v1
+          </button>
+          <button className="px-2 py-1 text-[10px] rounded bg-primary text-white font-bold">
+            v2
+          </button>
         </div>
       </div>
 
@@ -89,7 +105,11 @@ export default function AssistantPage() {
               onClick={() => send(CHIP_LABELS[label] || label)}
               className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full glass text-xs hover:border-primary/40 transition-all"
             >
-              <Icon name="volume_up" className="text-primary" style={{ fontSize: 14 }} />
+              <Icon
+                name="volume_up"
+                className="text-primary"
+                style={{ fontSize: 14 }}
+              />
               <span>{label}</span>
             </button>
           )
@@ -103,7 +123,9 @@ export default function AssistantPage() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`flex items-start gap-3 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+            className={`flex items-start gap-3 ${
+              msg.role === "user" ? "flex-row-reverse" : ""
+            }`}
           >
             <div
               className={`size-8 rounded-full shrink-0 flex items-center justify-center ${
@@ -114,7 +136,9 @@ export default function AssistantPage() {
             >
               <Icon
                 name={msg.role === "assistant" ? "smart_toy" : "person"}
-                className={msg.role === "assistant" ? "text-white" : "text-slate-400"}
+                className={
+                  msg.role === "assistant" ? "text-white" : "text-slate-400"
+                }
                 style={{ fontSize: 16 }}
               />
             </div>

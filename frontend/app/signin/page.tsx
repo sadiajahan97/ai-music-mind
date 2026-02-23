@@ -22,8 +22,13 @@ export default function SignInPage() {
       <div className="absolute bottom-32 right-0 w-60 h-60 bg-pink-600/10 blur-[90px] rounded-full pointer-events-none" />
 
       <div className="relative z-10 flex flex-col items-center pt-20 pb-6 px-6">
-        <div className="bg-gradient-to-br from-primary-light to-primary p-4 rounded-2xl shadow-2xl shadow-primary/50 mb-5 anim-float">
-          <Icon name="graphic_eq" className="text-white" style={{ fontSize: 36 }} fill={1} />
+        <div className="bg-linear-to-br from-primary-light to-primary p-4 rounded-2xl shadow-2xl shadow-primary/50 mb-5 anim-float">
+          <Icon
+            name="graphic_eq"
+            className="text-white"
+            style={{ fontSize: 36 }}
+            fill={1}
+          />
         </div>
         <h1
           className="font-extrabold text-3xl tracking-tight mb-1"
@@ -31,7 +36,9 @@ export default function SignInPage() {
         >
           AI Music Mind
         </h1>
-        <p className="text-slate-400 text-sm">Create studio-ready tracks with AI</p>
+        <p className="text-slate-400 text-sm">
+          Create studio-ready tracks with AI
+        </p>
       </div>
 
       <div className="relative z-10 mx-4 glass rounded-2xl p-6">
@@ -81,7 +88,11 @@ export default function SignInPage() {
                     border: "1px solid rgba(146,19,236,0.2)",
                   }}
                 >
-                  <Icon name="mail" className="text-primary" style={{ fontSize: 18 }} />
+                  <Icon
+                    name="mail"
+                    className="text-primary"
+                    style={{ fontSize: 18 }}
+                  />
                   <input
                     type="email"
                     placeholder="you@example.com"
@@ -100,7 +111,11 @@ export default function SignInPage() {
                     border: "1px solid rgba(146,19,236,0.2)",
                   }}
                 >
-                  <Icon name="lock" className="text-primary" style={{ fontSize: 18 }} />
+                  <Icon
+                    name="lock"
+                    className="text-primary"
+                    style={{ fontSize: 18 }}
+                  />
                   <input
                     type="password"
                     placeholder="••••••••"
@@ -116,7 +131,7 @@ export default function SignInPage() {
             </div>
             <button
               onClick={doSignIn}
-              className="w-full py-4 bg-gradient-to-r from-primary to-primary-light text-white font-bold rounded-xl mb-4 transition-all hover:opacity-90 active:scale-[0.98]"
+              className="w-full py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-xl mb-4 transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 fontFamily: "var(--font-display), Syne, sans-serif",
                 boxShadow: "0 6px 24px rgba(146,19,236,0.5)",
@@ -141,7 +156,11 @@ export default function SignInPage() {
                     border: "1px solid rgba(146,19,236,0.2)",
                   }}
                 >
-                  <Icon name="person" className="text-primary" style={{ fontSize: 18 }} />
+                  <Icon
+                    name="person"
+                    className="text-primary"
+                    style={{ fontSize: 18 }}
+                  />
                   <input
                     type="text"
                     placeholder="Your name"
@@ -160,7 +179,11 @@ export default function SignInPage() {
                     border: "1px solid rgba(146,19,236,0.2)",
                   }}
                 >
-                  <Icon name="mail" className="text-primary" style={{ fontSize: 18 }} />
+                  <Icon
+                    name="mail"
+                    className="text-primary"
+                    style={{ fontSize: 18 }}
+                  />
                   <input
                     type="email"
                     placeholder="you@example.com"
@@ -179,7 +202,11 @@ export default function SignInPage() {
                     border: "1px solid rgba(146,19,236,0.2)",
                   }}
                 >
-                  <Icon name="lock" className="text-primary" style={{ fontSize: 18 }} />
+                  <Icon
+                    name="lock"
+                    className="text-primary"
+                    style={{ fontSize: 18 }}
+                  />
                   <input
                     type="password"
                     placeholder="Min 8 characters"
@@ -190,7 +217,7 @@ export default function SignInPage() {
             </div>
             <button
               onClick={doSignIn}
-              className="w-full py-4 bg-gradient-to-r from-primary to-primary-light text-white font-bold rounded-xl mb-4 transition-all hover:opacity-90 active:scale-[0.98]"
+              className="w-full py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-xl mb-4 transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 fontFamily: "var(--font-display), Syne, sans-serif",
                 boxShadow: "0 6px 24px rgba(146,19,236,0.5)",
@@ -213,10 +240,22 @@ export default function SignInPage() {
             className="flex items-center justify-center gap-2.5 py-3 rounded-xl glass hover:border-primary/40 transition-all"
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
-              <path fill="#EA4335" d="M5.26 9.77A7.24 7.24 0 0 1 12 4.75c1.73 0 3.29.64 4.5 1.68l3.35-3.35A11.93 11.93 0 0 0 12 .75C7.37.75 3.37 3.27 1.38 6.98l3.88 2.79z" />
-              <path fill="#34A853" d="M16.01 19.25a7.25 7.25 0 0 1-4.01 1.25 7.24 7.24 0 0 1-6.73-4.55l-3.88 2.79A11.95 11.95 0 0 0 12 23.25c3.1 0 5.93-1.17 8.07-3.08l-4.06-2.92z" />
-              <path fill="#FBBC04" d="M1.38 17.74A11.93 11.93 0 0 1 .75 12c0-2 .49-3.88 1.35-5.55l3.16 2.32A7.23 7.23 0 0 0 4.75 12c0 1.35.37 2.62 1.01 3.69l-4.38 2.05z" />
-              <path fill="#4285F4" d="M23.25 12c0-.79-.08-1.55-.2-2.3H12v4.36h6.32a5.4 5.4 0 0 1-2.31 3.54l4.06 2.92C21.89 18.73 23.25 15.57 23.25 12z" />
+              <path
+                fill="#EA4335"
+                d="M5.26 9.77A7.24 7.24 0 0 1 12 4.75c1.73 0 3.29.64 4.5 1.68l3.35-3.35A11.93 11.93 0 0 0 12 .75C7.37.75 3.37 3.27 1.38 6.98l3.88 2.79z"
+              />
+              <path
+                fill="#34A853"
+                d="M16.01 19.25a7.25 7.25 0 0 1-4.01 1.25 7.24 7.24 0 0 1-6.73-4.55l-3.88 2.79A11.95 11.95 0 0 0 12 23.25c3.1 0 5.93-1.17 8.07-3.08l-4.06-2.92z"
+              />
+              <path
+                fill="#FBBC04"
+                d="M1.38 17.74A11.93 11.93 0 0 1 .75 12c0-2 .49-3.88 1.35-5.55l3.16 2.32A7.23 7.23 0 0 0 4.75 12c0 1.35.37 2.62 1.01 3.69l-4.38 2.05z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.25 12c0-.79-.08-1.55-.2-2.3H12v4.36h6.32a5.4 5.4 0 0 1-2.31 3.54l4.06 2.92C21.89 18.73 23.25 15.57 23.25 12z"
+              />
             </svg>
             <span className="text-sm font-medium">Google</span>
           </button>

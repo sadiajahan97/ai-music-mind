@@ -68,7 +68,11 @@ export function CreatePageContent() {
               placeholder="Describe the sound, e.g., 'A cinematic lo-fi beat for a rainy night in Tokyo'..."
             />
             <div className="absolute bottom-3 right-3 opacity-40 group-hover:opacity-100 transition-opacity">
-              <Icon name="auto_fix_high" className="text-primary" style={{ fontSize: 18 }} />
+              <Icon
+                name="auto_fix_high"
+                className="text-primary"
+                style={{ fontSize: 18 }}
+              />
             </div>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -128,13 +132,19 @@ export function CreatePageContent() {
                   className={mood === m.id ? "text-primary" : "text-slate-500"}
                 />
                 <span
-                  className={`font-medium text-sm ${mood === m.id ? "" : "text-slate-300"}`}
+                  className={`font-medium text-sm ${
+                    mood === m.id ? "" : "text-slate-300"
+                  }`}
                 >
                   {m.id}
                 </span>
                 {mood === m.id && (
                   <div className="absolute top-2 right-2">
-                    <Icon name="check_circle" className="text-primary" style={{ fontSize: 16 }} />
+                    <Icon
+                      name="check_circle"
+                      className="text-primary"
+                      style={{ fontSize: 16 }}
+                    />
                   </div>
                 )}
               </div>
@@ -215,7 +225,9 @@ export function CreatePageContent() {
                 key={l}
                 onClick={() => setLang(l)}
                 className={`shrink-0 px-4 py-1.5 rounded-full text-xs transition-all ${
-                  lang === l ? "bg-primary text-white font-medium" : "glass text-slate-300"
+                  lang === l
+                    ? "bg-primary text-white font-medium"
+                    : "glass text-slate-300"
                 }`}
               >
                 {l}
@@ -231,7 +243,11 @@ export function CreatePageContent() {
           <div className="space-y-3">
             <div className="flex items-center justify-between p-4 glass rounded-xl">
               <div className="flex items-center gap-3">
-                <Icon name="shuffle" className="text-primary" style={{ fontSize: 20 }} />
+                <Icon
+                  name="shuffle"
+                  className="text-primary"
+                  style={{ fontSize: 20 }}
+                />
                 <div>
                   <p className="text-sm font-medium">Smart Variations</p>
                   <p className="text-xs text-slate-500">Generate 3 versions</p>
@@ -241,7 +257,11 @@ export function CreatePageContent() {
             </div>
             <div className="flex items-center justify-between p-4 glass rounded-xl">
               <div className="flex items-center gap-3">
-                <Icon name="palette" className="text-primary" style={{ fontSize: 20 }} />
+                <Icon
+                  name="palette"
+                  className="text-primary"
+                  style={{ fontSize: 20 }}
+                />
                 <div>
                   <p className="text-sm font-medium">Cover Art</p>
                   <p className="text-xs text-slate-500">AI-generated artwork</p>
@@ -253,10 +273,10 @@ export function CreatePageContent() {
         </section>
       </main>
 
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[393px] p-4 bg-gradient-to-t from-bg-dark via-bg-dark/95 to-transparent z-10">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[393px] p-4 bg-linear-to-t from-bg-dark via-bg-dark/95 to-transparent z-10">
         <button
           onClick={() => router.push("/app/player")}
-          className="w-full bg-gradient-to-r from-primary to-primary-light text-white font-bold py-4 rounded-xl shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] anim-pulse"
+          className="w-full bg-linear-to-r from-primary to-primary-light text-white font-bold py-4 rounded-xl shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] anim-pulse"
           style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
         >
           <Icon name="auto_awesome" />

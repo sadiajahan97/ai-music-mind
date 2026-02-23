@@ -80,7 +80,9 @@ export default function LyricsPage() {
                   key={r}
                   onClick={() => setRhyme(r)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-                    rhyme === r ? "bg-primary text-white" : "glass text-slate-300"
+                    rhyme === r
+                      ? "bg-primary text-white"
+                      : "glass text-slate-300"
                   }`}
                 >
                   {r}
@@ -155,7 +157,8 @@ export default function LyricsPage() {
             </div>
           </div>
 
-          <button className="w-full py-4 bg-gradient-to-r from-primary to-primary-light text-white font-bold rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
+          <button
+            className="w-full py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
             style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
           >
             <Icon name="check" />

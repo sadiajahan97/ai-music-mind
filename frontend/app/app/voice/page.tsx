@@ -95,12 +95,19 @@ export default function VoicePage() {
             <div className="absolute -right-4 -bottom-4 w-28 h-28 bg-primary/10 blur-2xl rounded-full" />
             <div className="relative z-10 flex items-start gap-3">
               <div className="mt-0.5 size-9 rounded-xl bg-primary/25 border border-primary/30 flex items-center justify-center shrink-0">
-                <Icon name="lock" className="text-primary" style={{ fontSize: 18 }} fill={1} />
+                <Icon
+                  name="lock"
+                  className="text-primary"
+                  style={{ fontSize: 18 }}
+                  fill={1}
+                />
               </div>
               <div>
                 <h3
                   className="font-bold text-base"
-                  style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                  style={{
+                    fontFamily: "var(--font-display), Syne, sans-serif",
+                  }}
                 >
                   User Voice Cloning
                 </h3>
@@ -109,9 +116,7 @@ export default function VoicePage() {
                 </p>
               </div>
             </div>
-            <button
-              className="relative z-10 shrink-0 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-lg shadow-primary/30"
-            >
+            <button className="relative z-10 shrink-0 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-lg shadow-primary/30">
               Unlock Pro
             </button>
           </div>
@@ -129,7 +134,9 @@ export default function VoicePage() {
                 }`}
                 style={{
                   fontFamily: "var(--font-display), Syne, sans-serif",
-                  ...(i === 0 ? { boxShadow: "0 4px 14px rgba(146,19,236,0.45)" } : {}),
+                  ...(i === 0
+                    ? { boxShadow: "0 4px 14px rgba(146,19,236,0.45)" }
+                    : {}),
                 }}
               >
                 {style}
@@ -148,8 +155,12 @@ export default function VoicePage() {
                 onClick={() => setSelected(v.id)}
                 className="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 aspect-[3/4]"
                 style={{
-                  border: isSelected ? "2px solid var(--color-primary)" : undefined,
-                  boxShadow: isSelected ? "0 0 0 3px rgba(146,19,236,0.25)" : undefined,
+                  border: isSelected
+                    ? "2px solid var(--color-primary)"
+                    : undefined,
+                  boxShadow: isSelected
+                    ? "0 0 0 3px rgba(146,19,236,0.25)"
+                    : undefined,
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -168,7 +179,12 @@ export default function VoicePage() {
                 {isSelected && (
                   <div className="absolute top-2.5 left-2.5">
                     <div className="size-7 rounded-full bg-white flex items-center justify-center shadow-lg">
-                      <Icon name="check_circle" className="text-primary" style={{ fontSize: 18 }} fill={1} />
+                      <Icon
+                        name="check_circle"
+                        className="text-primary"
+                        style={{ fontSize: 18 }}
+                        fill={1}
+                      />
                     </div>
                   </div>
                 )}
@@ -191,13 +207,17 @@ export default function VoicePage() {
                 <div className="absolute inset-x-0 bottom-0 px-3 pt-8 pb-3">
                   <p
                     className="text-white font-bold text-base leading-tight"
-                    style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                    style={{
+                      fontFamily: "var(--font-display), Syne, sans-serif",
+                    }}
                   >
                     {v.id}
                   </p>
                   <p
                     className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${
-                      isSelected && v.id === "Luna" ? "text-primary" : "text-slate-300"
+                      isSelected && v.id === "Luna"
+                        ? "text-primary"
+                        : "text-slate-300"
                     }`}
                   >
                     {v.style}
@@ -210,7 +230,9 @@ export default function VoicePage() {
                     }`}
                     style={{
                       fontFamily: "var(--font-display), Syne, sans-serif",
-                      ...(isSelected ? { boxShadow: "0 4px 16px rgba(146,19,236,0.5)" } : {}),
+                      ...(isSelected
+                        ? { boxShadow: "0 4px 16px rgba(146,19,236,0.5)" }
+                        : {}),
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -226,12 +248,13 @@ export default function VoicePage() {
       <div
         className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[393px] px-4 pb-5 pt-3 z-50"
         style={{
-          background: "linear-gradient(to top,rgba(26,16,34,1) 85%,transparent)",
+          background:
+            "linear-gradient(to top,rgba(26,16,34,1) 85%,transparent)",
         }}
       >
         <Link
           href="/app/create"
-          className="w-full py-4 bg-gradient-to-r from-primary to-primary-light text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:opacity-90"
+          className="w-full py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold text-base rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] hover:opacity-90"
           style={{
             fontFamily: "var(--font-display), Syne, sans-serif",
             boxShadow: "0 8px 30px rgba(146,19,236,0.55)",

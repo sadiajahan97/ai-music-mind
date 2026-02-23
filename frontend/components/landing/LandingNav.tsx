@@ -7,8 +7,13 @@ export function LandingNav() {
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 glass-dark border-b border-primary/10">
       <div className="flex items-center gap-2.5">
-        <div className="bg-gradient-to-br from-primary-light to-primary p-2 rounded-xl shadow-lg shadow-primary/30">
-          <Icon name="graphic_eq" className="text-white" style={{ fontSize: 22 }} fill={1} />
+        <div className="bg-linear-to-br from-primary-light to-primary p-2 rounded-xl shadow-lg shadow-primary/30">
+          <Icon
+            name="graphic_eq"
+            className="text-white"
+            style={{ fontSize: 22 }}
+            fill={1}
+          />
         </div>
         <span
           className="text-lg font-bold tracking-tight"

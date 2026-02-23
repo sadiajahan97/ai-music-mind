@@ -5,9 +5,24 @@ import { Icon } from "@/components/ui/Icon";
 import { WaveBar } from "@/components/ui/WaveBar";
 
 const TRENDING = [
-  { rank: 2, title: "Glitch in the Matrix", meta: "@techno_ghost · EDM · 1.8k plays", gradient: "from-blue-600 to-cyan-500" },
-  { rank: 3, title: "Sacred Frequencies", meta: "@soul_wave · Gospel · 1.2k plays", gradient: "from-orange-500 to-red-600" },
-  { rank: 4, title: "Tokyo Rain Lo-fi", meta: "@lofi_labs · Lo-fi · 987 plays", gradient: "from-green-600 to-teal-500" },
+  {
+    rank: 2,
+    title: "Glitch in the Matrix",
+    meta: "@techno_ghost · EDM · 1.8k plays",
+    gradient: "from-blue-600 to-cyan-500",
+  },
+  {
+    rank: 3,
+    title: "Sacred Frequencies",
+    meta: "@soul_wave · Gospel · 1.2k plays",
+    gradient: "from-orange-500 to-red-600",
+  },
+  {
+    rank: 4,
+    title: "Tokyo Rain Lo-fi",
+    meta: "@lofi_labs · Lo-fi · 987 plays",
+    gradient: "from-green-600 to-teal-500",
+  },
 ];
 
 export default function DiscoverPage() {
@@ -16,8 +31,13 @@ export default function DiscoverPage() {
       <header className="sticky top-0 z-50 glass-dark border-b border-primary/10">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-br from-primary-light to-primary p-1.5 rounded-xl">
-              <Icon name="graphic_eq" className="text-white" style={{ fontSize: 18 }} fill={1} />
+            <div className="bg-linear-to-br from-primary-light to-primary p-1.5 rounded-xl">
+              <Icon
+                name="graphic_eq"
+                className="text-white"
+                style={{ fontSize: 18 }}
+                fill={1}
+              />
             </div>
             <h1
               className="text-lg font-bold"
@@ -37,7 +57,8 @@ export default function DiscoverPage() {
           </div>
         </div>
         <div className="flex px-5 border-b border-primary/10">
-          <button className="pb-3 border-b-2 border-primary text-primary font-bold text-sm mr-5"
+          <button
+            className="pb-3 border-b-2 border-primary text-primary font-bold text-sm mr-5"
             style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
           >
             Trending
@@ -64,21 +85,25 @@ export default function DiscoverPage() {
               <WaveBar key={d} height={60 + d * 80} delay={d} />
             ))}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-deep via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-bg-deep via-transparent to-transparent" />
           <div className="absolute bottom-4 left-0 right-0 px-5">
             <div className="flex items-end justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span
                     className="px-2 py-0.5 rounded-full bg-primary/30 text-primary text-[10px] font-bold border border-primary/40"
-                    style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                    style={{
+                      fontFamily: "var(--font-display), Syne, sans-serif",
+                    }}
                   >
                     #1 TRENDING
                   </span>
                 </div>
                 <h3
                   className="text-2xl font-bold leading-tight"
-                  style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                  style={{
+                    fontFamily: "var(--font-display), Syne, sans-serif",
+                  }}
                 >
                   Neon Dreams
                 </h3>
@@ -94,7 +119,12 @@ export default function DiscoverPage() {
                   href="/app/player"
                   className="size-14 rounded-full bg-primary flex items-center justify-center shadow-xl shadow-primary/50 hover:scale-110 transition-transform"
                 >
-                  <Icon name="play_arrow" className="text-white" style={{ fontSize: 28 }} fill={1} />
+                  <Icon
+                    name="play_arrow"
+                    className="text-white"
+                    style={{ fontSize: 28 }}
+                    fill={1}
+                  />
                 </Link>
               </div>
             </div>
@@ -114,30 +144,44 @@ export default function DiscoverPage() {
                 key={t.rank}
                 className="glass-card p-3.5 rounded-2xl flex items-center gap-3"
               >
-                <span className="text-slate-500 font-bold text-sm w-5"
-                  style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                <span
+                  className="text-slate-500 font-bold text-sm w-5"
+                  style={{
+                    fontFamily: "var(--font-display), Syne, sans-serif",
+                  }}
                 >
                   #{t.rank}
                 </span>
                 <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${t.gradient} shrink-0`}
+                  className={`w-12 h-12 rounded-xl bg-linear-to-br ${t.gradient} shrink-0`}
                 />
                 <div className="flex-1 min-w-0">
                   <p
                     className="font-bold text-sm truncate"
-                    style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                    style={{
+                      fontFamily: "var(--font-display), Syne, sans-serif",
+                    }}
                   >
                     {t.title}
                   </p>
                   <p className="text-xs text-slate-400">{t.meta}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Icon name="favorite_border" className="text-slate-400" style={{ fontSize: 18 }} />
+                  <Icon
+                    name="favorite_border"
+                    className="text-slate-400"
+                    style={{ fontSize: 18 }}
+                  />
                   <Link
                     href="/app/player"
                     className="size-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center"
                   >
-                    <Icon name="play_arrow" className="text-primary" style={{ fontSize: 18 }} fill={1} />
+                    <Icon
+                      name="play_arrow"
+                      className="text-primary"
+                      style={{ fontSize: 18 }}
+                      fill={1}
+                    />
                   </Link>
                 </div>
               </div>

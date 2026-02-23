@@ -4,11 +4,51 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 
 const TRACKS = [
-  { title: "Neon Dreams", meta: "Synthwave · 120 BPM · 30s", tag: "POP", tagColor: "bg-primary/20 text-primary", time: "2 hours ago", gradient: "from-purple-600 to-pink-500", icon: "music_note" },
-  { title: "Midnight Jazz", meta: "Jazz · 90 BPM · 30s", tag: "JAZZ", tagColor: "bg-blue-500/20 text-blue-400", time: "Yesterday", gradient: "from-blue-600 to-cyan-500", icon: "piano" },
-  { title: "Cyberpunk Beats", meta: "EDM · 150 BPM · 30s", tag: "EDM", tagColor: "bg-green-500/20 text-green-400", time: "2 days ago", gradient: "from-green-600 to-teal-500", icon: "electric_bolt" },
-  { title: "Summer Vibes", meta: "Pop · 128 BPM · 30s", tag: "POP", tagColor: "bg-orange-500/20 text-orange-400", time: "3 days ago", gradient: "from-orange-500 to-red-500", icon: "campaign" },
-  { title: "Tokyo Rain Lo-fi", meta: "Lo-fi · 75 BPM · 30s", tag: "LO-FI", tagColor: "bg-primary/20 text-primary", time: "1 week ago", gradient: "from-primary/60 to-purple-800", icon: "mood" },
+  {
+    title: "Neon Dreams",
+    meta: "Synthwave · 120 BPM · 30s",
+    tag: "POP",
+    tagColor: "bg-primary/20 text-primary",
+    time: "2 hours ago",
+    gradient: "from-purple-600 to-pink-500",
+    icon: "music_note",
+  },
+  {
+    title: "Midnight Jazz",
+    meta: "Jazz · 90 BPM · 30s",
+    tag: "JAZZ",
+    tagColor: "bg-blue-500/20 text-blue-400",
+    time: "Yesterday",
+    gradient: "from-blue-600 to-cyan-500",
+    icon: "piano",
+  },
+  {
+    title: "Cyberpunk Beats",
+    meta: "EDM · 150 BPM · 30s",
+    tag: "EDM",
+    tagColor: "bg-green-500/20 text-green-400",
+    time: "2 days ago",
+    gradient: "from-green-600 to-teal-500",
+    icon: "electric_bolt",
+  },
+  {
+    title: "Summer Vibes",
+    meta: "Pop · 128 BPM · 30s",
+    tag: "POP",
+    tagColor: "bg-orange-500/20 text-orange-400",
+    time: "3 days ago",
+    gradient: "from-orange-500 to-red-500",
+    icon: "campaign",
+  },
+  {
+    title: "Tokyo Rain Lo-fi",
+    meta: "Lo-fi · 75 BPM · 30s",
+    tag: "LO-FI",
+    tagColor: "bg-primary/20 text-primary",
+    time: "1 week ago",
+    gradient: "from-primary/60 to-purple-800",
+    icon: "mood",
+  },
 ];
 
 export default function LibraryPage() {
@@ -49,9 +89,14 @@ export default function LibraryPage() {
             className="glass-card p-4 rounded-2xl flex items-center gap-4"
           >
             <div
-              className={`w-14 h-14 rounded-xl bg-gradient-to-br ${t.gradient} flex items-center justify-center shrink-0`}
+              className={`w-14 h-14 rounded-xl bg-linear-to-br ${t.gradient} flex items-center justify-center shrink-0`}
             >
-              <Icon name={t.icon} className="text-white" style={{ fontSize: 26 }} fill={1} />
+              <Icon
+                name={t.icon}
+                className="text-white"
+                style={{ fontSize: 26 }}
+                fill={1}
+              />
             </div>
             <div className="flex-1 min-w-0">
               <h3
@@ -79,7 +124,11 @@ export default function LibraryPage() {
           </div>
         ))}
         <div className="glass-card p-6 rounded-2xl text-center mt-4">
-          <Icon name="library_add" className="text-primary mb-3 block" style={{ fontSize: 36 }} />
+          <Icon
+            name="library_add"
+            className="text-primary mb-3 block"
+            style={{ fontSize: 36 }}
+          />
           <h4
             className="font-bold mb-2"
             style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}

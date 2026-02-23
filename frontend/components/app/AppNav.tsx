@@ -28,7 +28,8 @@ export function AppNav() {
               href={item.href}
               className="flex-1 flex flex-col items-center justify-center relative border-none bg-transparent cursor-pointer pt-5 pb-1"
             >
-              <div className="absolute -top-5 w-14 h-14 rounded-full bg-gradient-to-br from-primary-light to-primary flex items-center justify-center text-white transition-transform hover:scale-105 shadow-lg"
+              <div
+                className="absolute -top-5 w-14 h-14 rounded-full bg-linear-to-br from-primary-light to-primary flex items-center justify-center text-white transition-transform hover:scale-105 shadow-lg"
                 style={{
                   boxShadow:
                     "0 0 0 5px rgba(22,14,29,0.97), 0 6px 24px rgba(146,19,236,0.55)",

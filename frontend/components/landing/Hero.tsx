@@ -20,12 +20,12 @@ export function Hero() {
           style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
         >
           From{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-primary anim-grad">
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-light to-primary anim-grad">
             Thought
           </span>
           <br />
           to{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-400 anim-grad">
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-pink-400 anim-grad">
             Track
           </span>
           <br />
@@ -40,7 +40,7 @@ export function Hero() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
           <Link
             href="/signin"
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-primary-light text-white font-bold rounded-2xl shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-all text-lg hover:scale-105 active:scale-95 anim-pulse"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-2xl shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-all text-lg hover:scale-105 active:scale-95 anim-pulse"
           >
             <Icon name="music_note" />
             Start Creating Free
@@ -58,7 +58,7 @@ export function Hero() {
             {["J", "M", "A", "+"].map((letter, i) => (
               <div
                 key={i}
-                className="w-8 h-8 rounded-full border-2 border-bg-deep flex items-center justify-center text-xs font-bold bg-gradient-to-tr from-purple-500 to-pink-500"
+                className="w-8 h-8 rounded-full border-2 border-bg-deep flex items-center justify-center text-xs font-bold bg-linear-to-tr from-purple-500 to-pink-500"
               />
             ))}
           </div>
@@ -80,7 +80,7 @@ export function Hero() {
           <div className="w-20 h-5 bg-bg-deep rounded-b-2xl mx-auto" />
           <div className="p-3 space-y-2.5">
             <div className="h-2 bg-primary/20 rounded-full w-3/4" />
-            <div className="h-24 bg-gradient-to-br from-primary/20 to-purple-900/40 rounded-xl border border-primary/20 flex items-center justify-center relative overflow-hidden">
+            <div className="h-24 bg-linear-to-br from-primary/20 to-purple-900/40 rounded-xl border border-primary/20 flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 flex items-end justify-center pb-2 gap-1">
                 {[40, 85, 65, 45, 75, 55].map((h, i) => (
                   <div
@@ -94,13 +94,17 @@ export function Hero() {
             <div className="h-2 bg-primary/30 rounded-full" />
             <div className="h-2 bg-primary/15 rounded-full w-4/5" />
             <div className="flex gap-2 pt-1">
-              <div className="flex-1 h-7 bg-gradient-to-r from-primary to-primary-light rounded-lg flex items-center justify-center">
+              <div className="flex-1 h-7 bg-linear-to-r from-primary to-primary-light rounded-lg flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold">
                   Generate ✦
                 </span>
               </div>
               <div className="w-7 h-7 glass rounded-lg flex items-center justify-center">
-                <Icon name="mic" className="text-primary" style={{ fontSize: 14 }} />
+                <Icon
+                  name="mic"
+                  className="text-primary"
+                  style={{ fontSize: 14 }}
+                />
               </div>
             </div>
           </div>

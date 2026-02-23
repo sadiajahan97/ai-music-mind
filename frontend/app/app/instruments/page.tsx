@@ -40,14 +40,24 @@ export default function InstrumentsPage() {
 
       <main className="flex-1 overflow-y-auto scroll-hide pb-24 px-4 py-5 space-y-5">
         <div className="glass-card p-4 rounded-2xl flex items-center gap-4 border-primary/25">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-purple-800 flex items-center justify-center shrink-0">
-            <Icon name="music_note" className="text-white" style={{ fontSize: 22 }} fill={1} />
+          <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary to-purple-800 flex items-center justify-center shrink-0">
+            <Icon
+              name="music_note"
+              className="text-white"
+              style={{ fontSize: 22 }}
+              fill={1}
+            />
           </div>
           <div className="flex-1">
-            <p className="font-bold" style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}>
+            <p
+              className="font-bold"
+              style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+            >
               Midnight Neon Synthwave
             </p>
-            <p className="text-xs text-slate-400">Live editing — changes apply instantly</p>
+            <p className="text-xs text-slate-400">
+              Live editing — changes apply instantly
+            </p>
           </div>
           <div className="flex items-center gap-1">
             <WaveBar height={14} delay={0} />
@@ -57,7 +67,8 @@ export default function InstrumentsPage() {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400"
+          <h3
+            className="text-xs font-bold uppercase tracking-wider text-slate-400"
             style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
           >
             Mix Controls
@@ -66,12 +77,18 @@ export default function InstrumentsPage() {
             <div key={s.id} className="glass-card p-4 rounded-xl">
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
-                  <Icon name={s.icon} className="text-primary" style={{ fontSize: 20 }} />
+                  <Icon
+                    name={s.icon}
+                    className="text-primary"
+                    style={{ fontSize: 20 }}
+                  />
                   <span className="font-medium text-sm">{s.label}</span>
                 </div>
                 <span
                   className="text-primary font-bold text-sm"
-                  style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+                  style={{
+                    fontFamily: "var(--font-display), Syne, sans-serif",
+                  }}
                 >
                   {values[s.id] ?? s.default}
                 </span>
@@ -92,14 +109,23 @@ export default function InstrumentsPage() {
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs text-slate-500 font-bold">Acoustic</span>
               <span className="font-medium text-sm">Character</span>
-              <span className="text-xs text-slate-500 font-bold">Electronic</span>
+              <span className="text-xs text-slate-500 font-bold">
+                Electronic
+              </span>
             </div>
-            <input type="range" min={0} max={100} defaultValue={60} className="w-full" />
+            <input
+              type="range"
+              min={0}
+              max={100}
+              defaultValue={60}
+              className="w-full"
+            />
           </div>
         </div>
 
         <div className="flex gap-3">
-          <button className="flex-1 py-4 bg-gradient-to-r from-primary to-primary-light text-white font-bold rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
+          <button
+            className="flex-1 py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
             style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
           >
             <Icon name="check" />
