@@ -1,5 +1,11 @@
 from os import environ
 
+ACCESS_TOKEN_EXPIRY_HOURS = 24
+
+JWT_ALGORITHM = "HS256"
+
+JWT_SECRET = environ.get("JWT_SECRET", "")
+
 KIE_API_KEY = environ.get("KIE_API_KEY", "")
 
 KIE_GENERATE_URL = "https://api.kie.ai/api/v1/generate"

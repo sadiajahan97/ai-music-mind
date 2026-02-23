@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.utils import generate_music_specs, generate_music_task, get_music_task_info
+from app.music_utils import generate_music_specs, generate_music_task, get_music_task_info
 
 router = APIRouter(prefix="/music", tags=["music"])
 

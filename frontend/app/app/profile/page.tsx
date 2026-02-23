@@ -9,6 +9,9 @@ export default function ProfilePage() {
   const router = useRouter();
 
   const doSignOut = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+    }
     router.push("/signin");
   };
 

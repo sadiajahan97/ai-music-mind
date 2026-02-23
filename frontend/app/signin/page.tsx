@@ -5,12 +5,83 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 
+const ACCESS_TOKEN_KEY = "access_token";
+const API_BASE =
+  typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL
+    : "http://localhost:8000";
+
 export default function SignInPage() {
   const router = useRouter();
   const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+  const [signUpName, setSignUpName] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const doSignIn = () => {
+  const storeTokenAndGo = (accessToken: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    }
     router.push("/app/home");
+  };
+
+  const doSignIn = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/sign-in`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: signInEmail, password: signInPassword }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = Array.isArray(data.detail) ? data.detail[0]?.msg ?? data.detail : data.detail;
+        setError(typeof msg === "string" ? msg : "Invalid email or password");
+        return;
+      }
+      if (data.access_token) {
+        storeTokenAndGo(data.access_token);
+      }
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const doSignUp = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/sign-up`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: signUpName,
+          email: signUpEmail,
+          password: signUpPassword,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const fallback = res.status === 409 ? "Email already registered" : "Something went wrong";
+        const msg = Array.isArray(data.detail) ? data.detail[0]?.msg ?? data.detail : data.detail;
+        setError(typeof msg === "string" ? msg : fallback);
+        return;
+      }
+      if (data.access_token) {
+        storeTokenAndGo(data.access_token);
+      }
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,6 +111,11 @@ export default function SignInPage() {
         </div>
 
         <div className="w-full glass rounded-2xl p-6">
+        {error && (
+          <div className="mb-4 py-2.5 px-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
         <div
           id="auth-tabs"
           className="flex p-1 rounded-xl mb-6"
@@ -49,7 +125,8 @@ export default function SignInPage() {
           }}
         >
           <button
-            onClick={() => setTab("signin")}
+            type="button"
+            onClick={() => { setTab("signin"); setError(null); }}
             className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
               tab === "signin"
                 ? "bg-primary text-white shadow-md"
@@ -60,7 +137,8 @@ export default function SignInPage() {
             Sign In
           </button>
           <button
-            onClick={() => setTab("signup")}
+            type="button"
+            onClick={() => { setTab("signup"); setError(null); }}
             className={`flex-1 py-2.5 rounded-lg font-medium text-sm transition-all ${
               tab === "signup"
                 ? "bg-primary text-white shadow-md"
@@ -94,6 +172,8 @@ export default function SignInPage() {
                   <input
                     type="email"
                     placeholder="you@example.com"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
                     className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
                   />
                 </div>
@@ -117,25 +197,29 @@ export default function SignInPage() {
                   <input
                     type="password"
                     placeholder="••••••••"
+                    value={signInPassword}
+                    onChange={(e) => setSignInPassword(e.target.value)}
                     className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
                   />
                 </div>
               </div>
               <div className="flex justify-end">
-                <button className="text-xs text-primary hover:text-primary-light transition-colors font-medium">
+                <button type="button" className="text-xs text-primary hover:text-primary-light transition-colors font-medium">
                   Forgot password?
                 </button>
               </div>
             </div>
             <button
+              type="button"
               onClick={doSignIn}
+              disabled={loading}
               className="w-full py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-xl mb-4 transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 fontFamily: "var(--font-display), Syne, sans-serif",
                 boxShadow: "0 6px 24px rgba(146,19,236,0.5)",
               }}
             >
-              Sign In
+              {loading ? "Signing in…" : "Sign In"}
             </button>
           </div>
         )}
@@ -162,6 +246,8 @@ export default function SignInPage() {
                   <input
                     type="text"
                     placeholder="Your name"
+                    value={signUpName}
+                    onChange={(e) => setSignUpName(e.target.value)}
                     className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
                   />
                 </div>
@@ -185,6 +271,8 @@ export default function SignInPage() {
                   <input
                     type="email"
                     placeholder="you@example.com"
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
                     className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
                   />
                 </div>
@@ -208,20 +296,24 @@ export default function SignInPage() {
                   <input
                     type="password"
                     placeholder="Min 8 characters"
+                    value={signUpPassword}
+                    onChange={(e) => setSignUpPassword(e.target.value)}
                     className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
                   />
                 </div>
               </div>
             </div>
             <button
-              onClick={doSignIn}
+              type="button"
+              onClick={doSignUp}
+              disabled={loading}
               className="w-full py-4 bg-linear-to-r from-primary to-primary-light text-white font-bold rounded-xl mb-4 transition-all hover:opacity-90 active:scale-[0.98]"
               style={{
                 fontFamily: "var(--font-display), Syne, sans-serif",
                 boxShadow: "0 6px 24px rgba(146,19,236,0.5)",
               }}
             >
-              Create Account
+              {loading ? "Creating account…" : "Create Account"}
             </button>
           </div>
         )}
