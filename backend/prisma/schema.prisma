@@ -7,14 +7,35 @@ generator client {
   provider = "prisma-client-py"
 }
 
+model MusicTrack {
+  id          String   @id @default(uuid())
+  downloadUrl String?  @map("download_url")
+  duration    Int?
+  imageUrl    String?  @map("image_url")
+  isReady     Boolean  @default(false) @map("is_ready")
+  model       String?
+  mood        String?
+  streamUrl   String?  @map("stream_url")
+  style       String?
+  tags        String?
+  title       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("music_tracks")
+}
+
 model User {
-  id             String   @id @default(uuid())
-  email          String   @unique
-  hashedPassword String   @map("hashed_password")
-  isPremium      Boolean  @default(false) @map("is_premium")
+  id             String       @id @default(uuid())
+  email          String       @unique
+  hashedPassword String       @map("hashed_password")
+  isPremium      Boolean      @default(false) @map("is_premium")
   name           String
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  musicTracks    MusicTrack[]
 
   @@map("users")
 }

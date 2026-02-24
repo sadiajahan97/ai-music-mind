@@ -7,13 +7,18 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from app.constants import KIE_GENERATE_URL, KIE_HEADERS, KIE_RECORD_INFO_URL, SYSTEM_PROMPT
 from app.model import get_model
 
-def generate_music_specs(user_prompt: str) -> dict:
+def generate_music_specs(user_prompt: str, mood: str = "") -> dict:
     try:
         model = get_model()
 
+        human_content = user_prompt
+
+        if mood:
+            human_content = f"Mood: {mood}\n\n{user_prompt}"
+
         response = model.invoke([
             SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content=user_prompt),
+            HumanMessage(content=human_content),
         ])
 
         return loads(response.content)
@@ -22,7 +27,7 @@ def generate_music_specs(user_prompt: str) -> dict:
     except Exception as e:
         raise RuntimeError(f"Failed to get music specs: {e}") from e
 
-def generate_music_task(music_specs: dict) -> str:
+def generate_music_task(music_specs: dict, style: str = "") -> str:
     try:
         payload = {
             "prompt": music_specs.get("prompt", ""),
@@ -30,7 +35,7 @@ def generate_music_task(music_specs: dict) -> str:
             "instrumental": False,
             "model": "V4",
             "callBackUrl": "http://localhost:8000",
-            "style": music_specs.get("style", ""),
+            "style": style,
             "title": music_specs.get("title", ""),
             "vocalGender": music_specs.get("vocalGender", "m"),
         }
