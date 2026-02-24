@@ -34,7 +34,10 @@ async def generate_music(
             }
         )
 
-        return {"taskId": task_id}
+        return {
+            "taskId": task_id,
+            "title": music_specs.get("title"),
+        }
     except (RuntimeError, ValueError) as e:
         raise HTTPException(
             detail=str(e),

@@ -125,12 +125,12 @@ async def run_not_ready_tracks_task() -> None:
                     await prisma.musictrack.update(
                         where={"id": task_id},
                         data={
-                            "downloadUrl": suno.get("audioUrl"),
+                            "downloadUrl": suno.get("sourceAudioUrl"),
                             "duration": int(duration * 1000) if duration is not None else None,
-                            "imageUrl": suno.get("imageUrl"),
+                            "imageUrl": suno.get("sourceImageUrl"),
                             "isReady": True,
                             "model": suno.get("modelName"),
-                            "streamUrl": suno.get("streamAudioUrl"),
+                            "streamUrl": suno.get("sourceStreamAudioUrl"),
                             "tags": suno.get("tags"),
                         },
                     )
@@ -145,8 +145,6 @@ async def task_loop() -> None:
     while True:
         try:
             await run_not_ready_tracks_task()
-
-            print("Not-ready tracks task completed successfully.")
         except CancelledError:
             break
         except Exception as e:

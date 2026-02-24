@@ -4,6 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+
+const ACCESS_TOKEN_KEY = "access_token";
+const API_BASE =
+  typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL
+    : "http://localhost:8000";
 import { Toggle } from "@/components/ui/Toggle";
 
 const GENRES = ["Pop", "EDM", "Lo-fi", "Rap", "Jazz", "Rock", "Classical"];
@@ -29,6 +35,52 @@ export function CreatePageContent() {
   const [mood, setMood] = useState("Happy");
   const [lang, setLang] = useState("English");
   const [bpm, setBpm] = useState(120);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showProcessingPopup, setShowProcessingPopup] = useState(false);
+  const [generatedTitle, setGeneratedTitle] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    setError(null);
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem(ACCESS_TOKEN_KEY) : null;
+    if (!token) {
+      setError("Please sign in to generate music.");
+      return;
+    }
+    if (!prompt.trim()) {
+      setError("Please enter a theme or prompt.");
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const res = await fetch(`${API_BASE}/music/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          user_prompt: prompt.trim(),
+          style: genre,
+          mood,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg =
+          typeof data.detail === "string" ? data.detail : "Failed to start generation.";
+        setError(msg);
+        return;
+      }
+      setGeneratedTitle(data.title ?? null);
+      setShowProcessingPopup(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-dark">
@@ -273,14 +325,65 @@ export function CreatePageContent() {
         </section>
       </main>
 
+      {error && (
+        <p className="fixed top-20 left-4 right-4 z-20 px-4 py-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-sm text-center">
+          {error}
+        </p>
+      )}
+
+      {showProcessingPopup && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+          onClick={() => { setShowProcessingPopup(false); setGeneratedTitle(null); }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl glass border border-primary/20 p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-center mb-4">
+              <div className="size-14 rounded-full bg-primary/20 flex items-center justify-center">
+                <Icon name="schedule" className="text-primary" style={{ fontSize: 28 }} />
+              </div>
+            </div>
+            <h3 className="text-lg font-bold text-center mb-2" style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}>
+              Track in progress
+            </h3>
+            {generatedTitle && (
+              <p className="text-primary font-medium text-center mb-2 truncate px-2" title={generatedTitle}>
+                {generatedTitle}
+              </p>
+            )}
+            <p className="text-slate-400 text-sm text-center mb-6">
+              Your music track is being processed. Go to the Library page to listen once it&apos;s ready.
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => router.push("/app/library")}
+                className="w-full bg-linear-to-r from-primary to-primary-light text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90"
+              >
+                <Icon name="library_music" />
+                Go to Library
+              </button>
+              <button
+                onClick={() => { setShowProcessingPopup(false); setGeneratedTitle(null); }}
+                className="w-full py-3 rounded-xl glass text-slate-300 font-medium hover:border-primary/40"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[393px] p-4 bg-linear-to-t from-bg-dark via-bg-dark/95 to-transparent z-10">
         <button
-          onClick={() => router.push("/app/player")}
-          className="w-full bg-linear-to-r from-primary to-primary-light text-white font-bold py-4 rounded-xl shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] anim-pulse"
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="w-full bg-linear-to-r from-primary to-primary-light text-white font-bold py-4 rounded-xl shadow-2xl shadow-primary/40 flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] anim-pulse disabled:opacity-70 disabled:pointer-events-none"
           style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
         >
           <Icon name="auto_awesome" />
-          Generate Track
+          {isGenerating ? "Generating…" : "Generate Track"}
         </button>
       </div>
     </div>
