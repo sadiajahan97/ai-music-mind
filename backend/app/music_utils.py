@@ -1,3 +1,4 @@
+from asyncio import CancelledError, sleep
 from json import dumps, JSONDecodeError, loads
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -5,6 +6,7 @@ from urllib.request import Request, urlopen
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.constants import KIE_GENERATE_URL, KIE_HEADERS, KIE_RECORD_INFO_URL, SYSTEM_PROMPT
+from app.db import get_db
 from app.model import get_model
 
 def generate_music_specs(user_prompt: str, mood: str = "") -> dict:
@@ -98,3 +100,55 @@ def get_music_task_info(task_id: str) -> dict:
         raise ValueError(f"Kie.ai response was not valid JSON: {e}") from e
     except Exception as e:
         raise RuntimeError(f"Failed to get music task info: {e}") from e
+
+async def run_not_ready_tracks_task() -> None:
+    gen = get_db()
+
+    try:
+        prisma = await anext(gen)
+
+        tracks = await prisma.musictrack.find_many(
+            where={"isReady": False},
+        )
+
+        ids = [t.id for t in tracks]
+
+        for task_id in ids:
+            try:
+                info = get_music_task_info(task_id)
+
+                if info.get("status") in ("FIRST_SUCCESS", "SUCCESS") and info.get("sunoData"):
+                    suno = info["sunoData"]
+
+                    duration = suno.get("duration")
+
+                    await prisma.musictrack.update(
+                        where={"id": task_id},
+                        data={
+                            "downloadUrl": suno.get("audioUrl"),
+                            "duration": int(duration * 1000) if duration is not None else None,
+                            "imageUrl": suno.get("imageUrl"),
+                            "isReady": True,
+                            "model": suno.get("modelName"),
+                            "streamUrl": suno.get("streamAudioUrl"),
+                            "tags": suno.get("tags"),
+                        },
+                    )
+            except Exception as e:
+                print(e)
+    except Exception as e:
+        print(e)
+    finally:
+        await gen.aclose()
+
+async def task_loop() -> None:
+    while True:
+        try:
+            await run_not_ready_tracks_task()
+
+            print("Not-ready tracks task completed successfully.")
+        except CancelledError:
+            break
+        except Exception as e:
+            print(e)
+        await sleep(30)

@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -10,8 +11,15 @@ load_dotenv(ROOT / ".env")
 
 from app.auth import router as auth_router
 from app.music import router as music_router
+from app.music_tasks import start_music_tasks, stop_music_tasks
 
-app = FastAPI(title="ai-music-mind-backend")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_music_tasks()
+    yield
+    stop_music_tasks()
+
+app = FastAPI(title="ai-music-mind-backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -31,7 +31,6 @@ async def generate_music(
                 "title": music_specs.get("title"),
                 "style": request.style or None,
                 "mood": request.mood or None,
-                "model": "V4",
             }
         )
 
@@ -51,3 +50,15 @@ def get_music_task(task_id: str):
             detail=str(e),
             status_code=502,
         ) from e
+
+@router.get("/tracks")
+async def get_music_tracks(
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    tracks = await prisma.musictrack.find_many(
+        where={"userId": user_id},
+        order={"createdAt": "desc"},
+    )
+
+    return [t.model_dump() for t in tracks]
