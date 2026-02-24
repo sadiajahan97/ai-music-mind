@@ -43,7 +43,9 @@ export function CreatePageContent() {
   const handleGenerate = async () => {
     setError(null);
     const token =
-      typeof window !== "undefined" ? localStorage.getItem(ACCESS_TOKEN_KEY) : null;
+      typeof window !== "undefined"
+        ? localStorage.getItem(ACCESS_TOKEN_KEY)
+        : null;
     if (!token) {
       setError("Please sign in to generate music.");
       return;
@@ -69,7 +71,9 @@ export function CreatePageContent() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         const msg =
-          typeof data.detail === "string" ? data.detail : "Failed to start generation.";
+          typeof data.detail === "string"
+            ? data.detail
+            : "Failed to start generation.";
         setError(msg);
         return;
       }
@@ -334,7 +338,10 @@ export function CreatePageContent() {
       {showProcessingPopup && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
-          onClick={() => { setShowProcessingPopup(false); setGeneratedTitle(null); }}
+          onClick={() => {
+            setShowProcessingPopup(false);
+            setGeneratedTitle(null);
+          }}
         >
           <div
             className="w-full max-w-sm rounded-2xl glass border border-primary/20 p-6 shadow-xl"
@@ -342,19 +349,30 @@ export function CreatePageContent() {
           >
             <div className="flex justify-center mb-4">
               <div className="size-14 rounded-full bg-primary/20 flex items-center justify-center">
-                <Icon name="schedule" className="text-primary" style={{ fontSize: 28 }} />
+                <Icon
+                  name="schedule"
+                  className="text-primary"
+                  style={{ fontSize: 28 }}
+                />
               </div>
             </div>
-            <h3 className="text-lg font-bold text-center mb-2" style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}>
+            <h3
+              className="text-lg font-bold text-center mb-2"
+              style={{ fontFamily: "var(--font-display), Syne, sans-serif" }}
+            >
               Track in progress
             </h3>
             {generatedTitle && (
-              <p className="text-primary font-medium text-center mb-2 truncate px-2" title={generatedTitle}>
+              <p
+                className="text-primary font-medium text-center mb-2 truncate px-2"
+                title={generatedTitle}
+              >
                 {generatedTitle}
               </p>
             )}
             <p className="text-slate-400 text-sm text-center mb-6">
-              Your music track is being processed. Go to the Library page to listen once it&apos;s ready.
+              Your music track is being processed. Go to the Library page to
+              listen once it&apos;s ready.
             </p>
             <div className="flex flex-col gap-2">
               <button
@@ -365,7 +383,10 @@ export function CreatePageContent() {
                 Go to Library
               </button>
               <button
-                onClick={() => { setShowProcessingPopup(false); setGeneratedTitle(null); }}
+                onClick={() => {
+                  setShowProcessingPopup(false);
+                  setGeneratedTitle(null);
+                }}
                 className="w-full py-3 rounded-xl glass text-slate-300 font-medium hover:border-primary/40"
               >
                 Close
@@ -375,7 +396,7 @@ export function CreatePageContent() {
         </div>
       )}
 
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[393px] p-4 bg-linear-to-t from-bg-dark via-bg-dark/95 to-transparent z-10">
+      <div className="fixed bottom-[86px] left-1/2 -translate-x-1/2 w-full max-w-[393px] p-4 bg-linear-to-t from-bg-dark via-bg-dark/95 to-transparent z-10">
         <button
           onClick={handleGenerate}
           disabled={isGenerating}

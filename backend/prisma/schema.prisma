@@ -9,13 +9,12 @@ generator client {
 
 model MusicTrack {
   id          String   @id @default(uuid())
-  downloadUrl String?  @map("download_url")
   duration    Int?
+  filePath    String?  @map("file_path")
   imageUrl    String?  @map("image_url")
   isReady     Boolean  @default(false) @map("is_ready")
   model       String?
   mood        String?
-  streamUrl   String?  @map("stream_url")
   style       String?
   tags        String?
   title       String?

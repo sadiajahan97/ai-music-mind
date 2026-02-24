@@ -1,5 +1,7 @@
-from asyncio import CancelledError, sleep
+from asyncio import CancelledError, sleep, to_thread
 from json import dumps, JSONDecodeError, loads
+from os import environ, makedirs, path
+from re import sub
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -8,6 +10,21 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from app.constants import KIE_GENERATE_URL, KIE_HEADERS, KIE_RECORD_INFO_URL, SYSTEM_PROMPT
 from app.db import get_db
 from app.model import get_model
+
+STORAGE_DIR = environ.get("STORAGE_DIR", "storage")
+
+def _download_file(url: str, dest_path: str) -> None:
+    request = Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "audio/*,*/*",
+        },
+    )
+
+    with urlopen(request) as response:
+        with open(dest_path, "wb") as f:
+            f.write(response.read())
 
 def generate_music_specs(user_prompt: str, mood: str = "") -> dict:
     try:
@@ -122,15 +139,43 @@ async def run_not_ready_tracks_task() -> None:
 
                     duration = suno.get("duration")
 
+                    download_url = suno.get("sourceAudioUrl")
+
+                    track = await prisma.musictrack.find_first(
+                        where={"id": task_id},
+                        include={"user": True},
+                    )
+
+                    if track and download_url:
+                        user_dir_name = f"{_sanitize_path_part(track.user.id)}_{_sanitize_path_part(track.user.name)}"
+
+                        user_dir = path.join(STORAGE_DIR, user_dir_name)
+
+                        makedirs(user_dir, exist_ok=True)
+
+                        title = (track.title or suno.get("title") or "untitled").strip()
+
+                        safe_title = _sanitize_path_part(title)
+
+                        ext = "mp3"
+
+                        file_name = f"{_sanitize_path_part(task_id)}_{safe_title}.{ext}"
+
+                        dest_path = path.join(user_dir, file_name)
+
+                        try:
+                            await to_thread(_download_file, download_url, dest_path)
+                        except Exception as e:
+                            print(f"Download failed for {task_id}: {e}")
+
                     await prisma.musictrack.update(
                         where={"id": task_id},
                         data={
-                            "downloadUrl": suno.get("sourceAudioUrl"),
                             "duration": int(duration * 1000) if duration is not None else None,
+                            "filePath": dest_path,
                             "imageUrl": suno.get("sourceImageUrl"),
                             "isReady": True,
                             "model": suno.get("modelName"),
-                            "streamUrl": suno.get("sourceStreamAudioUrl"),
                             "tags": suno.get("tags"),
                         },
                     )
@@ -140,6 +185,16 @@ async def run_not_ready_tracks_task() -> None:
         print(e)
     finally:
         await gen.aclose()
+
+def _sanitize_path_part(s: str, max_len: int = 200) -> str:
+    if not s or not isinstance(s, str):
+        return "unknown"
+
+    s = sub(r'[/\\:*?"<>|]', "_", s.strip())
+
+    s = sub(r"\s+", "_", s)
+
+    return (s[:max_len] if len(s) > max_len else s) or "unknown"
 
 async def task_loop() -> None:
     while True:

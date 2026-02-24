@@ -15,9 +15,9 @@ type MusicTrack = {
   title?: string | null;
   tags?: string | null;
   duration?: number | null;
-  image_url?: string | null;
-  is_ready?: boolean;
-  created_at?: string;
+  imageUrl?: string | null;
+  isReady?: boolean;
+  createdAt?: string;
 };
 
 function formatDuration(ms: number | null | undefined): string {
@@ -105,18 +105,23 @@ export default function LibraryPage() {
               key={t.id}
               className="glass-card p-4 rounded-2xl flex items-center gap-4"
             >
-              {t.image_url ? (
+              {t.imageUrl ? (
                 <div className="w-14 h-14 rounded-xl shrink-0 overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API image URL */}
                   <img
-                    src={t.image_url}
+                    src={t.imageUrl}
                     alt=""
                     className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
                 <div className="w-14 h-14 rounded-xl bg-linear-to-br from-purple-600 to-pink-500 flex items-center justify-center shrink-0">
-                  <Icon name="music_note" className="text-white" style={{ fontSize: 26 }} fill={1} />
+                  <Icon
+                    name="music_note"
+                    className="text-white"
+                    style={{ fontSize: 26 }}
+                    fill={1}
+                  />
                 </div>
               )}
               <div className="flex-1 min-w-0">
@@ -128,20 +133,22 @@ export default function LibraryPage() {
                 >
                   {t.title || "Untitled"}
                 </h3>
-                <p className="text-xs text-slate-400">{formatMeta(t)}</p>
+                {t.isReady && (
+                  <p className="text-xs text-slate-400">{formatMeta(t)}</p>
+                )}
                 <div className="flex items-center gap-2 mt-1.5">
-                  {!t.is_ready && (
+                  {!t.isReady && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400">
                       Processing
                     </span>
                   )}
                   <span className="text-[10px] text-slate-500">
-                    {t.created_at
-                      ? new Date(t.created_at).toLocaleDateString(undefined, {
+                    {t.createdAt
+                      ? new Date(t.createdAt).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
                           year:
-                            new Date(t.created_at).getFullYear() !==
+                            new Date(t.createdAt).getFullYear() !==
                             new Date().getFullYear()
                               ? "numeric"
                               : undefined,
@@ -151,9 +158,9 @@ export default function LibraryPage() {
                 </div>
               </div>
               <Link
-                href={t.is_ready ? `/app/player?trackId=${t.id}` : "#"}
+                href={t.isReady ? `/app/player/${t.id}` : "#"}
                 className={`size-11 rounded-full flex items-center justify-center text-white shadow-lg shrink-0 ${
-                  t.is_ready
+                  t.isReady
                     ? "bg-primary shadow-primary/30"
                     : "bg-slate-600 cursor-not-allowed pointer-events-none"
                 }`}

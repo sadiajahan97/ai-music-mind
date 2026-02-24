@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from prisma import Prisma
 from pydantic import BaseModel
 
@@ -65,3 +68,54 @@ async def get_music_tracks(
     )
 
     return [t.model_dump() for t in tracks]
+
+@router.get("/tracks/{track_id}")
+async def get_music_track(
+    track_id: str,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    track = await prisma.musictrack.find_first(
+        where={"id": track_id, "userId": user_id},
+    )
+
+    if track is None:
+        raise HTTPException(status_code=404, detail="Track not found")
+
+    return track.model_dump()
+
+@router.get("/tracks/{track_id}/file")
+async def get_music_track_file(
+    track_id: str,
+    download: bool = False,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    track = await prisma.musictrack.find_first(
+        where={"id": track_id, "userId": user_id},
+    )
+
+    if track is None or not track.filePath:
+        raise HTTPException(status_code=404, detail="Track or file not found")
+
+    path = Path(track.filePath)
+
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    filename = (track.title or track_id).strip() or "track"
+
+    safe_name = "".join(c for c in filename if c.isalnum() or c in " ._-")[:200]
+
+    ext = path.suffix or ".mp3"
+
+    if not safe_name.endswith(ext):
+        safe_name = f"{safe_name}{ext}"
+
+    media_type = "audio/mpeg" if ext.lower() == ".mp3" else "audio/mp4" if ext.lower() == ".m4a" else "audio/wav"
+
+    return FileResponse(
+        path,
+        media_type=media_type,
+        filename=safe_name if download else None,
+    )
