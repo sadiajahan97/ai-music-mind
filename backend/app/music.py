@@ -38,6 +38,7 @@ async def generate_music(
             data={
                 "id": task_id,
                 "userId": user_id,
+                "lyrics": music_specs.get("prompt"),
                 "title": music_specs.get("title"),
                 "style": request.style or None,
                 "mood": request.mood or None,

@@ -475,7 +475,7 @@ export default function PlayerTrackPage() {
         <section className="flex flex-col gap-3">
           <div className="grid grid-cols-3 gap-2">
             <Link
-              href="/app/lyrics"
+              href={`/app/lyrics/${trackId}`}
               className="flex flex-col items-center gap-1 p-3 glass rounded-xl hover:border-primary/40 transition-all"
             >
               <Icon
