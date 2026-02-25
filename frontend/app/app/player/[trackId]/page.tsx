@@ -65,6 +65,11 @@ export default function PlayerTrackPage() {
   const playInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
+  const autoPlayDoneRef = useRef(false);
+
+  useEffect(() => {
+    autoPlayDoneRef.current = false;
+  }, [trackId]);
 
   useEffect(() => {
     if (!trackId || !track?.isReady || !track?.filePath) {
@@ -155,6 +160,42 @@ export default function PlayerTrackPage() {
     track?.duration != null ? Math.floor(track.duration / 1000) : 30;
   const audioSrc = audioBlobUrl ?? undefined;
 
+  useEffect(() => {
+    if (
+      !track?.isReady ||
+      !audioSrc ||
+      !audioRef.current ||
+      autoPlayDoneRef.current
+    )
+      return;
+    const el = audioRef.current;
+    el.currentTime = 0;
+    playInterval.current = setInterval(() => {
+      if (!audioRef.current) return;
+      const current = audioRef.current.currentTime;
+      const p = Math.floor(
+        (current / (audioRef.current.duration || 1)) * totalSeconds,
+      );
+      setPlayProgress(Math.min(p, totalSeconds));
+      if (p >= totalSeconds && playInterval.current) {
+        clearInterval(playInterval.current);
+        setPlaying(false);
+      }
+    }, 500);
+    setPlaying(true);
+    autoPlayDoneRef.current = true;
+    el.play().catch((err: unknown) => {
+      if (err instanceof Error && err.name !== "AbortError") {
+        console.error("Autoplay failed:", err);
+      }
+      if (playInterval.current) {
+        clearInterval(playInterval.current);
+        playInterval.current = null;
+      }
+      setPlaying(false);
+    });
+  }, [audioSrc, track?.isReady, totalSeconds]);
+
   const togglePlay = () => {
     setPlayError(null);
     if (track?.isReady && audioSrc && audioRef.current) {
@@ -229,6 +270,15 @@ export default function PlayerTrackPage() {
     setPlayProgress(0);
   };
 
+  const handleSeek = (seconds: number) => {
+    const sec = Math.max(0, Math.min(seconds, totalSeconds));
+    setPlayProgress(sec);
+    if (track?.isReady && audioRef.current) {
+      const safe = Number.isFinite(sec) ? Math.max(0, Math.min(sec, audioRef.current.duration || sec)) : 0;
+      audioRef.current.currentTime = safe;
+    }
+  };
+
   const handleExportTrack = async () => {
     if (!trackId || !track?.filePath) return;
     const token =
@@ -295,8 +345,31 @@ export default function PlayerTrackPage() {
           src={audioSrc}
           onEnded={() => {
             if (playInterval.current) clearInterval(playInterval.current);
-            setPlaying(false);
             setPlayProgress(0);
+            if (track?.isReady && audioRef.current) {
+              audioRef.current.currentTime = 0;
+              audioRef.current.play().catch((err: unknown) => {
+                if (err instanceof Error && err.name !== "AbortError") {
+                  setPlaying(false);
+                }
+              });
+              setPlaying(true);
+              playInterval.current = setInterval(() => {
+                if (!audioRef.current) return;
+                const current = audioRef.current.currentTime;
+                const p = Math.floor(
+                  (current / (audioRef.current.duration || 1)) * totalSeconds,
+                );
+                setPlayProgress(Math.min(p, totalSeconds));
+                if (p >= totalSeconds && playInterval.current) {
+                  clearInterval(playInterval.current);
+                  playInterval.current = null;
+                  setPlaying(false);
+                }
+              }, 500);
+            } else {
+              setPlaying(false);
+            }
           }}
         />
       )}
@@ -408,13 +481,25 @@ export default function PlayerTrackPage() {
               <span>{timeStr}</span>
               <span>{totalTimeStr}</span>
             </div>
-            <div className="h-1.5 w-full bg-primary/15 rounded-full cursor-pointer">
-              <div
-                className="h-full bg-primary rounded-full transition-[width] duration-300"
-                style={{
-                  width: `${progressPct}%`,
-                  boxShadow: "0 0 10px rgba(146,19,236,0.6)",
-                }}
+            <div className="relative h-6 flex items-center">
+              <div className="absolute inset-x-0 h-1.5 w-full bg-primary/15 rounded-full pointer-events-none">
+                <div
+                  className="h-full bg-primary rounded-full transition-[width] duration-150"
+                  style={{
+                    width: `${progressPct}%`,
+                    boxShadow: "0 0 10px rgba(146,19,236,0.6)",
+                  }}
+                />
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={totalSeconds || 1}
+                value={playProgress}
+                step={1}
+                onChange={(e) => handleSeek(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                aria-label="Seek"
               />
             </div>
           </div>
