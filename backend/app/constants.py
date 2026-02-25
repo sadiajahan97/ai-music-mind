@@ -29,18 +29,26 @@ The JSON object must strictly follow this format:
 Requirements:
 1. Use the user's input strictly as the values.
 2. The lyrics (prompt) and the title must match the mood of the user. Reflect the user's stated mood in tone, imagery, and wording throughout.
-3. For the 'prompt' field (lyrics), aim for a duration as close to four minutes as possible when sung at a moderate tempo, but never exceed four minutes.
-4. The 'prompt' must also not exceed 3000 characters.
-5. Ensure character limits for 'title' are respected.
-6. The output must be valid JSON with double quotes.
-7. Do not add any extra fields, commentary, or formatting.
-8. Output the JSON object directly, with no code blocks, markdown, or surrounding text.
-9. Example output:
+3. The lyrics (prompt) and the title must be produced in the language that the user asks for. If the user specifies a language, write everything in that language.
+4. For the 'prompt' field (lyrics), aim for a duration as close to four minutes as possible when sung at a moderate tempo, but never exceed four minutes.
+5. The 'prompt' must also not exceed 3000 characters.
+6. Ensure character limits for 'title' are respected.
+7. The output must be valid JSON with double quotes.
+8. Do not add any extra fields, commentary, or formatting.
+9. Output the JSON object directly, with no code blocks, markdown, or surrounding text.
+10. Example output (English):
 
 {
   "prompt": "The morning light drifts soft across the floor,\\nA whisper of dawn outside the door.\\nFingers trace the keys like gentle streams,\\nAwakening the world from half-dreams.\\n\\nThe air is calm, yet it breathes a song,\\nA subtle pulse, steady and strong.\\nNotes fall slowly, like rain on glass,\\nEach one a moment we let pass.\\n\\nBreathe in, breathe out, let the silence grow,\\nFeel the quiet rise and gently flow.\\nEvery chord a wave, every pause a shore,\\nPeaceful piano, we need nothing more.\\n\\n...<lyrics continue for up to 4 minutes or 3000 characters>...",
   "title": "Peaceful Piano Meditation"
 }
 
-Output only the JSON object exactly as shown, nothing else. Remember: lyrics and title must always match the user's mood.
+11. Example output (Spanish):
+
+{
+  "prompt": "La luz de la mañana se desliza suave por el suelo,\\nUn susurro de alba fuera de la puerta.\\nLos dedos recorren las teclas como arroyos tranquilos,\\nDespertando al mundo de los semisueños.\\n\\nEl aire está en calma, pero respira una canción,\\nUn pulso sutil, constante y fuerte.\\nLas notas caen despacio, como lluvia en el cristal,\\nCada una un momento que dejamos pasar.\\n\\nInspira, espira, deja crecer el silencio,\\nSiente la calma subir y fluir con suavidad.\\nCada acorde una ola, cada pausa una orilla,\\nPiano sereno, no necesitamos nada más.\\n\\n...<lyrics continue for up to 4 minutes or 3000 characters>...",
+  "title": "Meditación de piano en calma"
+}
+
+Output only the JSON object exactly as shown, nothing else. Remember: lyrics and title must always match the user's mood and be in the language the user requests.
 """

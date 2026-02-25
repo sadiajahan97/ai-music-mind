@@ -17,6 +17,7 @@ class GenerateMusicRequest(BaseModel):
     style: str = ""
     mood: str = ""
     vocal_gender: Literal["m", "f"] = "m"
+    language: str = "English"
 
 @router.post("/generate")
 async def generate_music(
@@ -25,7 +26,9 @@ async def generate_music(
     prisma: Prisma = Depends(get_db),
 ):
     try:
-        music_specs = generate_music_specs(request.user_prompt, request.mood)
+        music_specs = generate_music_specs(
+            request.user_prompt, request.mood, request.language
+        )
 
         task_id = generate_music_task(
             music_specs, request.style, request.vocal_gender

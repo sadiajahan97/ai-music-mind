@@ -26,14 +26,23 @@ def _download_file(url: str, dest_path: str) -> None:
         with open(dest_path, "wb") as f:
             f.write(response.read())
 
-def generate_music_specs(user_prompt: str, mood: str = "") -> dict:
+def generate_music_specs(
+    user_prompt: str, mood: str = "", language: str = "English"
+) -> dict:
     try:
         model = get_model()
 
-        human_content = user_prompt
+        parts = []
+
+        if language:
+            parts.append(f"Language: {language}")
 
         if mood:
-            human_content = f"Mood: {mood}\n\n{user_prompt}"
+            parts.append(f"Mood: {mood}")
+
+        parts.append(user_prompt)
+
+        human_content = "\n\n".join(parts)
 
         response = model.invoke([
             SystemMessage(content=SYSTEM_PROMPT),

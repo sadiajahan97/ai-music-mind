@@ -13,7 +13,7 @@ const API_BASE =
 import { Toggle } from "@/components/ui/Toggle";
 
 const GENRES = ["Pop", "EDM", "Lo-fi", "Rap", "Jazz", "Rock", "Classical"];
-const LANGS = ["English", "Spanish", "French", "Arabic", "Hindi", "Japanese"];
+const LANGS = ["English", "Spanish", "French", "Arabic", "Hindi", "Japanese", "Bangla"];
 const MOODS = [
   { id: "Happy", icon: "wb_sunny" },
   { id: "Dark", icon: "dark_mode" },
@@ -68,6 +68,7 @@ export function CreatePageContent() {
           style: genre,
           mood,
           vocal_gender: vocalGender,
+          language: lang,
         }),
       });
       const data = await res.json().catch(() => ({}));
