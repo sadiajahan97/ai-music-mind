@@ -61,6 +61,7 @@ export default function PlayerTrackPage() {
   const [playProgress, setPlayProgress] = useState(0);
   const [playError, setPlayError] = useState<string | null>(null);
   const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const playInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
@@ -124,6 +125,7 @@ export default function PlayerTrackPage() {
       .then((data: MusicTrack) => {
         setTrack(data);
         setPlayError(null);
+        setImageLoadFailed(false);
       })
       .catch((e) =>
         setError(e instanceof Error ? e.message : "Failed to load track"),
@@ -319,13 +321,14 @@ export default function PlayerTrackPage() {
       <main className="flex-1 flex flex-col px-5 gap-6 py-4 max-w-md mx-auto w-full pb-24">
         <section className="flex flex-col items-center pt-2">
           <div className="relative w-44 h-44 flex items-center justify-center">
-            {track.imageUrl ? (
+            {track.imageUrl && !imageLoadFailed ? (
               <div className="w-44 h-44 rounded-full overflow-hidden border-4 border-primary/20 shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={track.imageUrl}
                   alt=""
                   className="w-full h-full object-cover"
+                  onError={() => setImageLoadFailed(true)}
                 />
               </div>
             ) : (

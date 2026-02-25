@@ -34,6 +34,7 @@ export function CreatePageContent() {
   const [genre, setGenre] = useState("Pop");
   const [mood, setMood] = useState("Happy");
   const [lang, setLang] = useState("English");
+  const [vocalGender, setVocalGender] = useState<"m" | "f">("m");
   const [bpm, setBpm] = useState(120);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showProcessingPopup, setShowProcessingPopup] = useState(false);
@@ -66,6 +67,7 @@ export function CreatePageContent() {
           user_prompt: prompt.trim(),
           style: genre,
           mood,
+          vocal_gender: vocalGender,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -287,6 +289,30 @@ export function CreatePageContent() {
                 }`}
               >
                 {l}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-4 py-4">
+          <label className="text-xs font-bold uppercase tracking-wider text-primary mb-3 block">
+            Vocal Gender
+          </label>
+          <div className="flex gap-2">
+            {[
+              { id: "m" as const, label: "Male" },
+              { id: "f" as const, label: "Female" },
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => setVocalGender(opt.id)}
+                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  vocalGender === opt.id
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "glass text-slate-300 hover:border-primary/40"
+                }`}
+              >
+                {opt.label}
               </button>
             ))}
           </div>

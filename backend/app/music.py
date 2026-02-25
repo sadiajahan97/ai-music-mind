@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
@@ -15,6 +16,7 @@ class GenerateMusicRequest(BaseModel):
     user_prompt: str
     style: str = ""
     mood: str = ""
+    vocal_gender: Literal["m", "f"] = "m"
 
 @router.post("/generate")
 async def generate_music(
@@ -25,7 +27,9 @@ async def generate_music(
     try:
         music_specs = generate_music_specs(request.user_prompt, request.mood)
 
-        task_id = generate_music_task(music_specs, request.style)
+        task_id = generate_music_task(
+            music_specs, request.style, request.vocal_gender
+        )
 
         await prisma.musictrack.create(
             data={

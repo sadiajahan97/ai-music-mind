@@ -38,6 +38,7 @@ export default function LibraryPage() {
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [brokenImageIds, setBrokenImageIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const token =
@@ -105,13 +106,16 @@ export default function LibraryPage() {
               key={t.id}
               className="glass-card p-4 rounded-2xl flex items-center gap-4"
             >
-              {t.imageUrl ? (
+              {t.imageUrl && !brokenImageIds.has(t.id) ? (
                 <div className="w-14 h-14 rounded-xl shrink-0 overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element -- dynamic API image URL */}
                   <img
                     src={t.imageUrl}
                     alt=""
                     className="w-full h-full object-cover"
+                    onError={() =>
+                      setBrokenImageIds((prev) => new Set(prev).add(t.id))
+                    }
                   />
                 </div>
               ) : (

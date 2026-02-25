@@ -46,7 +46,13 @@ def generate_music_specs(user_prompt: str, mood: str = "") -> dict:
     except Exception as e:
         raise RuntimeError(f"Failed to get music specs: {e}") from e
 
-def generate_music_task(music_specs: dict, style: str = "") -> str:
+def generate_music_task(
+    music_specs: dict,
+    style: str = "",
+    vocal_gender: str = "m",
+) -> str:
+    vocal = "f" if vocal_gender == "f" else "m"
+
     try:
         payload = {
             "prompt": music_specs.get("prompt", ""),
@@ -56,7 +62,7 @@ def generate_music_task(music_specs: dict, style: str = "") -> str:
             "callBackUrl": "http://localhost:8000",
             "style": style,
             "title": music_specs.get("title", ""),
-            "vocalGender": music_specs.get("vocalGender", "m"),
+            "vocalGender": vocal,
         }
 
         request = Request(
