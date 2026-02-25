@@ -229,6 +229,15 @@ export default function PlayerTrackPage() {
     setPlayProgress(0);
   };
 
+  const handleSeek = (seconds: number) => {
+    const sec = Math.max(0, Math.min(seconds, totalSeconds));
+    setPlayProgress(sec);
+    if (track?.isReady && audioRef.current) {
+      const safe = Number.isFinite(sec) ? Math.max(0, Math.min(sec, audioRef.current.duration || sec)) : 0;
+      audioRef.current.currentTime = safe;
+    }
+  };
+
   const handleExportTrack = async () => {
     if (!trackId || !track?.filePath) return;
     const token =
@@ -408,13 +417,25 @@ export default function PlayerTrackPage() {
               <span>{timeStr}</span>
               <span>{totalTimeStr}</span>
             </div>
-            <div className="h-1.5 w-full bg-primary/15 rounded-full cursor-pointer">
-              <div
-                className="h-full bg-primary rounded-full transition-[width] duration-300"
-                style={{
-                  width: `${progressPct}%`,
-                  boxShadow: "0 0 10px rgba(146,19,236,0.6)",
-                }}
+            <div className="relative h-6 flex items-center">
+              <div className="absolute inset-x-0 h-1.5 w-full bg-primary/15 rounded-full pointer-events-none">
+                <div
+                  className="h-full bg-primary rounded-full transition-[width] duration-150"
+                  style={{
+                    width: `${progressPct}%`,
+                    boxShadow: "0 0 10px rgba(146,19,236,0.6)",
+                  }}
+                />
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={totalSeconds || 1}
+                value={playProgress}
+                step={1}
+                onChange={(e) => handleSeek(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                aria-label="Seek"
               />
             </div>
           </div>
