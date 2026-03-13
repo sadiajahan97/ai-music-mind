@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../theme/app_theme.dart';
+import '../models/music_track.dart';
+import '../services/auth_service.dart';
+import '../constants.dart';
 
 class NowPlayingScreen extends StatefulWidget {
-  const NowPlayingScreen({super.key});
+  final MusicTrack? track;
+  const NowPlayingScreen({super.key, this.track});
 
   @override
   State<NowPlayingScreen> createState() => _NowPlayingScreenState();
@@ -11,18 +16,15 @@ class NowPlayingScreen extends StatefulWidget {
 
 class _NowPlayingScreenState extends State<NowPlayingScreen>
     with SingleTickerProviderStateMixin {
-  bool _isPlaying = true;
+  final AudioPlayer _player = AudioPlayer();
+  final AuthService _authService = AuthService();
+  
+  bool _isPlaying = false;
   bool _isFavorited = true;
-  double _progress = 0.32; // 1:12 out of 3:45
+  double _progress = 0.0;
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
   late AnimationController _pulseController;
-
-  final List<Map<String, dynamic>> _lyrics = [
-    {'text': 'The static hums a digital prayer', 'active': false},
-    {'text': 'Binary dreams floating in the air', 'active': false},
-    {'text': 'Searching for a signal in the static...', 'active': true},
-    {'text': 'Watching the colors fade to blue...', 'active': false},
-    {'text': 'A ghost in the machine calling for you', 'active': false},
-  ];
 
   @override
   void initState() {
@@ -31,12 +33,79 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
+
+    _initPlayer();
+    if (widget.track != null) {
+      _loadTrack(widget.track!);
+    }
+  }
+
+  void _initPlayer() {
+    _player.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state == PlayerState.playing;
+        });
+      }
+    });
+
+    _player.onPositionChanged.listen((pos) {
+      if (mounted) {
+        setState(() {
+          _position = pos;
+          if (_duration.inMilliseconds > 0) {
+            _progress = _position.inMilliseconds / _duration.inMilliseconds;
+          }
+        });
+      }
+    });
+
+    _player.onDurationChanged.listen((dur) {
+      if (mounted) {
+        setState(() {
+          _duration = dur;
+        });
+      }
+    });
+  }
+
+  Future<void> _loadTrack(MusicTrack track) async {
+    if (!track.isReady) return;
+
+    try {
+      final token = await _authService.getToken();
+      final url = '${AppConstants.baseUrl}/music/tracks/${track.id}/file?access_token=$token';
+      
+      await _player.setSource(
+        UrlSource(url),
+      );
+      _player.resume();
+    } catch (e) {
+      debugPrint("Error loading audio: $e");
+    }
+  }
+
+  @override
+  void didUpdateWidget(NowPlayingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.track?.id != oldWidget.track?.id && widget.track != null) {
+      _loadTrack(widget.track!);
+    }
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
+    _player.dispose();
     super.dispose();
+  }
+
+  String _formatDuration(int? ms) {
+    if (ms == null || ms == 0) return '0:00';
+    final totalSeconds = (ms / 1000).floor();
+    final minutes = (totalSeconds / 60).floor();
+    final remainingSeconds = totalSeconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -44,17 +113,8 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
         title: const Text('Now Playing'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.queue_music, size: 24),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -73,36 +133,40 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Midnight Synthesis',
+                          widget.track?.title ?? 'No Track Playing',
                           style: GoogleFonts.inter(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.textDark,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'AI Music Mind • Producer X',
+                          widget.track?.tags ?? 'Select a track to play',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: AppTheme.accentBlue,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() => _isFavorited = !_isFavorited);
-                    },
-                    child: Icon(
-                      _isFavorited ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorited
-                          ? AppTheme.primaryOrange
-                          : AppTheme.textTertiary,
-                      size: 26,
-                    ),
-                  ),
+                  // GestureDetector(
+                  //   onTap: () {
+                  //     setState(() => _isFavorited = !_isFavorited);
+                  //   },
+                  //   child: Icon(
+                  //     _isFavorited ? Icons.favorite : Icons.favorite_border,
+                  //     color: _isFavorited
+                  //         ? AppTheme.primaryOrange
+                  //         : AppTheme.textTertiary,
+                  //     size: 26,
+                  //   ),
+                  // ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -150,8 +214,22 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: CustomPaint(
-                painter: _NeonGeometryPainter(_pulseController.value),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _NeonGeometryPainter(_pulseController.value),
+                    ),
+                  ),
+                  if (widget.track?.imageUrl != null)
+                    Positioned.fill(
+                      child: Image.network(
+                        widget.track!.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -173,8 +251,11 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
           ),
           child: Slider(
-            value: _progress,
-            onChanged: (v) => setState(() => _progress = v),
+            value: _progress.clamp(0.0, 1.0),
+            onChanged: (v) {
+              final newPos = Duration(milliseconds: (v * _duration.inMilliseconds).round());
+              _player.seek(newPos);
+            },
           ),
         ),
         Padding(
@@ -183,14 +264,14 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '1:12',
+                _formatDuration(_position.inMilliseconds),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: AppTheme.textSecondary,
                 ),
               ),
               Text(
-                '3:45',
+                _formatDuration(_duration.inMilliseconds),
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: AppTheme.textSecondary,
@@ -219,7 +300,13 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
         ),
         // Play/Pause button
         GestureDetector(
-          onTap: () => setState(() => _isPlaying = !_isPlaying),
+          onTap: () {
+            if (_isPlaying) {
+              _player.pause();
+            } else {
+              _player.resume();
+            }
+          },
           child: Container(
             width: 64,
             height: 64,
@@ -276,55 +363,55 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
                 ),
               ],
             ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'FULL SCREEN',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.accentBlue,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
+            // TextButton(
+            //   onPressed: () {},
+            //   child: Text(
+            //     'FULL SCREEN',
+            //     style: GoogleFonts.inter(
+            //       fontSize: 12,
+            //       fontWeight: FontWeight.w600,
+            //       color: AppTheme.accentBlue,
+            //       letterSpacing: 0.5,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         const SizedBox(height: 8),
-        ...List.generate(_lyrics.length, (i) {
-          final lyric = _lyrics[i];
-          final isActive = lyric['active'] as bool;
-          return Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(bottom: 6),
-            padding: EdgeInsets.symmetric(
-              vertical: isActive ? 14 : 8,
-              horizontal: isActive ? 16 : 4,
-            ),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? AppTheme.accentBlue.withValues(alpha: 0.08)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: isActive
-                  ? Border(
-                      left: BorderSide(
-                        color: AppTheme.accentBlue,
-                        width: 3,
-                      ),
-                    )
-                  : null,
-            ),
-            child: Text(
-              lyric['text'] as String,
-              style: GoogleFonts.inter(
-                fontSize: isActive ? 16 : 14,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                color: isActive ? AppTheme.textDark : AppTheme.textTertiary,
+        if (widget.track?.lyrics != null && widget.track!.lyrics!.isNotEmpty)
+          ...widget.track!.lyrics!.split('\n').map((line) {
+            if (line.trim().isEmpty) return const SizedBox(height: 24);
+            return Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+                horizontal: 4,
               ),
+              child: Text(
+                line.trim(),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: AppTheme.textTertiary,
+                ),
+              ),
+            );
+          })
+        else
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Text(
+              'No lyrics available for this track',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppTheme.textTertiary,
+                fontStyle: FontStyle.italic,
+              ),
+              textAlign: TextAlign.center,
             ),
-          );
-        }),
+          ),
       ],
     );
   }
