@@ -28,12 +28,17 @@ def create_access_token(user_id: str) -> tuple[str, datetime]:
 
 def get_bearer_token(request: Request) -> str:
     auth = request.headers.get("Authorization")
-    if not auth or not auth.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401,
-            detail="Missing or invalid Authorization header",
-        )
-    return auth[7:].strip()
+    if auth and auth.startswith("Bearer "):
+        return auth[7:].strip()
+    
+    token = request.query_params.get("access_token")
+    if token:
+        return token
+        
+    raise HTTPException(
+        status_code=401,
+        detail="Missing or invalid Authorization header or access_token query parameter",
+    )
 
 def hash_password(password: str) -> str:
     return hashpw(password.encode("utf-8"), gensalt()).decode("utf-8")

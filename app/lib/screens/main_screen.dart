@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../models/music_track.dart';
 import 'home_screen.dart';
 import 'library_screen.dart';
 import 'now_playing_screen.dart';
@@ -15,16 +16,23 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  MusicTrack? _currentTrack;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
-    LibraryScreen(),
-    NowPlayingScreen(),
-    ProfileScreen(),
-  ];
+  void _playTrack(MusicTrack track) {
+    setState(() {
+      _currentTrack = track;
+      _currentIndex = 2; // Index of NowPlayingScreen
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _screens = [
+      const HomeScreen(),
+      LibraryScreen(onTrackSelected: _playTrack),
+      NowPlayingScreen(track: _currentTrack),
+      const ProfileScreen(),
+    ];
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,

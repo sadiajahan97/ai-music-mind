@@ -2,54 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../widgets/menu_bottom_sheet.dart';
+import '../models/music_track.dart';
+import '../services/music_service.dart';
 
 class LibraryScreen extends StatefulWidget {
-  const LibraryScreen({super.key});
+  final Function(MusicTrack)? onTrackSelected;
+  const LibraryScreen({super.key, this.onTrackSelected});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
 }
 
 class _LibraryScreenState extends State<LibraryScreen> {
-  int _selectedTab = 0;
+  final MusicService _musicService = MusicService();
+  List<MusicTrack> _tracks = [];
+  bool _isLoading = true;
+  String? _error;
 
-  final List<Map<String, dynamic>> _songs = [
-    {
-      'title': 'Stellar Resonance',
-      'version': 'v4.5-all',
-      'model': 'AI Master',
-      'duration': '3:45',
-      'color': const Color(0xFF0F1B2D),
-    },
-    {
-      'title': 'Digital Horizon',
-      'version': 'v4.2-vocal',
-      'model': 'Generation 9',
-      'duration': '4:12',
-      'color': const Color(0xFF2D1B4E),
-    },
-    {
-      'title': 'Midnight Neural',
-      'version': 'v4.5-all',
-      'model': 'Synthesized',
-      'duration': '2:58',
-      'color': const Color(0xFF1A3A2E),
-    },
-    {
-      'title': 'Algorithm Beat',
-      'version': 'v3.0-full',
-      'model': 'Classic',
-      'duration': '5:20',
-      'color': const Color(0xFF3D2B1E),
-    },
-    {
-      'title': 'Quantum Echo',
-      'version': 'v4.5-all',
-      'model': 'Deep Learning',
-      'duration': '3:15',
-      'color': const Color(0xFF1E3A5F),
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchTracks();
+  }
+
+  Future<void> _fetchTracks() async {
+    try {
+      final tracks = await _musicService.getMusicTracks();
+      if (mounted) {
+        setState(() {
+          _tracks = tracks;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  String _formatDuration(int? ms) {
+    if (ms == null || ms == 0) return '';
+    final totalSeconds = (ms / 1000).floor();
+    final minutes = (totalSeconds / 60).floor();
+    final remainingSeconds = totalSeconds % 60;
+    if (remainingSeconds == 0) {
+      return '${minutes}m';
+    }
+    return '${minutes}m ${remainingSeconds}s';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,63 +112,97 @@ class _LibraryScreenState extends State<LibraryScreen> {
           // const SizedBox(height: 8),
           // Song list
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              itemCount: _songs.length,
-              separatorBuilder: (context, index) =>
-                  const Divider(color: AppTheme.dividerColor, height: 1),
-              itemBuilder: (context, index) =>
-                  _buildSongItem(_songs[index]),
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                    ? Center(child: Text('Error: $_error'))
+                    : _tracks.isEmpty
+                        ? const Center(child: Text('No tracks found'))
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            itemCount: _tracks.length,
+                            separatorBuilder: (context, index) => const Divider(
+                                color: AppTheme.dividerColor, height: 1),
+                            itemBuilder: (context, index) =>
+                                _buildSongItem(_tracks[index]),
+                          ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTabButton(String label, int index) {
-    final isSelected = _selectedTab == index;
+  // Widget _buildTabButton(String label, int index) {
+  //   final isSelected = _selectedTab == index;
+  //   return GestureDetector(
+  //     onTap: () => setState(() => _selectedTab = index),
+  //     child: Column(
+  //       children: [
+  //         Text(
+  //           label,
+  //           style: GoogleFonts.inter(
+  //             fontSize: 15,
+  //             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+  //             color: isSelected ? AppTheme.accentBlue : AppTheme.textTertiary,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 6),
+  //         Container(
+  //           height: 2.5,
+  //           width: 40,
+  //           decoration: BoxDecoration(
+  //             color: isSelected ? AppTheme.accentBlue : Colors.transparent,
+  //             borderRadius: BorderRadius.circular(2),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildSongItem(MusicTrack track) {
     return GestureDetector(
-      onTap: () => setState(() => _selectedTab = index),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? AppTheme.accentBlue : AppTheme.textTertiary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            height: 2.5,
-            width: 40,
-            decoration: BoxDecoration(
-              color: isSelected ? AppTheme.accentBlue : Colors.transparent,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSongItem(Map<String, dynamic> song) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        children: [
-          // Album art
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: song['color'] as Color,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Center(
-              child: Icon(Icons.music_note, color: Colors.white54, size: 22),
+      onTap: () {
+        if (widget.onTrackSelected != null) {
+          widget.onTrackSelected!(track);
+        }
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        child: Row(
+          children: [
+            // Album art
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                gradient: (track.isReady && track.imageUrl != null)
+                    ? null
+                    : AppTheme.orangeGradient,
+              ),
+              child: (track.isReady && track.imageUrl != null)
+                  ? Image.network(
+                      track.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(
+                        decoration: const BoxDecoration(
+                            gradient: AppTheme.orangeGradient),
+                        child: const Center(
+                          child:
+                              Icon(Icons.music_note, color: Colors.white, size: 22),
+                        ),
+                      ),
+                    )
+                  : const Center(
+                      child:
+                          Icon(Icons.music_note, color: Colors.white, size: 22),
+                    ),
             ),
           ),
           const SizedBox(width: 14),
@@ -174,7 +212,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  song['title'] as String,
+                  track.title,
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -183,7 +221,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${song['version']} • ${song['model']}',
+                  track.isReady
+                      ? '${track.tags ?? 'Untagged'} • ${_formatDuration(track.duration)}'
+                      : 'Processing...',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: AppTheme.textSecondary,
@@ -192,18 +232,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ],
             ),
           ),
-          // Duration
-          Text(
-            song['duration'] as String,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
-            ),
-          ),
           const SizedBox(width: 8),
           // More button
           // GestureDetector(
-          //   onTap: () => showMenuBottomSheet(context, song['title'] as String),
+          //   onTap: () => showMenuBottomSheet(context, track.title),
           //   child: const Icon(
           //     Icons.more_vert,
           //     color: AppTheme.textTertiary,
@@ -212,6 +244,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           // ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
