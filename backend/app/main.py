@@ -11,6 +11,7 @@ load_dotenv(ROOT / ".env")
 
 from app.auth import router as auth_router
 from app.music import router as music_router
+from app.profile import router as profile_router
 from app.music_tasks import start_music_tasks, stop_music_tasks
 
 @asynccontextmanager
@@ -39,3 +40,4 @@ def check_health():
 
 app.include_router(auth_router)
 app.include_router(music_router)
+app.include_router(profile_router)

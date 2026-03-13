@@ -22,16 +22,7 @@ class ProfileScreen extends StatelessWidget {
             // Profile header with gradient
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.accentBlue.withValues(alpha: 0.08),
-                    AppTheme.backgroundLight,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
+              color: AppTheme.backgroundLight,
               child: Column(
                 children: [
                   const SizedBox(height: 16),
@@ -114,6 +105,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Preferences section
+            /*
             _buildSectionHeader('PREFERENCES'),
             _buildMenuItem(
               icon: Icons.person_add_outlined,
@@ -138,6 +130,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               onTap: () {},
             ),
+            */
 
             const SizedBox(height: 16),
 
