@@ -8,7 +8,15 @@ import '../constants.dart';
 
 class NowPlayingScreen extends StatefulWidget {
   final MusicTrack? track;
-  const NowPlayingScreen({super.key, this.track});
+  final List<MusicTrack>? playlist;
+  final Function(MusicTrack)? onTrackChanged;
+
+  const NowPlayingScreen({
+    super.key,
+    this.track,
+    this.playlist,
+    this.onTrackChanged,
+  });
 
   @override
   State<NowPlayingScreen> createState() => _NowPlayingScreenState();
@@ -98,6 +106,34 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
     _pulseController.dispose();
     _player.dispose();
     super.dispose();
+  }
+
+  void _skipNext() {
+    if (widget.playlist == null || widget.playlist!.isEmpty || widget.track == null) return;
+    
+    final currentIndex = widget.playlist!.indexWhere((t) => t.id == widget.track!.id);
+    if (currentIndex == -1) return;
+    
+    final nextIndex = (currentIndex + 1) % widget.playlist!.length;
+    final nextTrack = widget.playlist![nextIndex];
+    
+    if (widget.onTrackChanged != null) {
+      widget.onTrackChanged!(nextTrack);
+    }
+  }
+
+  void _skipPrevious() {
+    if (widget.playlist == null || widget.playlist!.isEmpty || widget.track == null) return;
+    
+    final currentIndex = widget.playlist!.indexWhere((t) => t.id == widget.track!.id);
+    if (currentIndex == -1) return;
+    
+    final prevIndex = (currentIndex - 1 + widget.playlist!.length) % widget.playlist!.length;
+    final prevTrack = widget.playlist![prevIndex];
+    
+    if (widget.onTrackChanged != null) {
+      widget.onTrackChanged!(prevTrack);
+    }
   }
 
   String _formatDuration(int? ms) {
@@ -288,15 +324,15 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        IconButton(
-          icon: const Icon(Icons.shuffle, size: 22),
-          color: AppTheme.textTertiary,
-          onPressed: () {},
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.shuffle, size: 22),
+        //   color: AppTheme.textTertiary,
+        //   onPressed: () {},
+        // ),
         IconButton(
           icon: const Icon(Icons.skip_previous, size: 32),
           color: AppTheme.textDark,
-          onPressed: () {},
+          onPressed: _skipPrevious,
         ),
         // Play/Pause button
         GestureDetector(
@@ -331,13 +367,13 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
         IconButton(
           icon: const Icon(Icons.skip_next, size: 32),
           color: AppTheme.textDark,
-          onPressed: () {},
+          onPressed: _skipNext,
         ),
-        IconButton(
-          icon: const Icon(Icons.repeat, size: 22),
-          color: AppTheme.textTertiary,
-          onPressed: () {},
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.repeat, size: 22),
+        //   color: AppTheme.textTertiary,
+        //   onPressed: () {},
+        // ),
       ],
     );
   }

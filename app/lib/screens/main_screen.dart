@@ -17,10 +17,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   MusicTrack? _currentTrack;
+  List<MusicTrack> _currentPlaylist = [];
 
-  void _playTrack(MusicTrack track) {
+  void _playTrack(MusicTrack track, List<MusicTrack> playlist) {
     setState(() {
       _currentTrack = track;
+      _currentPlaylist = playlist;
       _currentIndex = 2; // Index of NowPlayingScreen
     });
   }
@@ -30,7 +32,13 @@ class _MainScreenState extends State<MainScreen> {
     final List<Widget> _screens = [
       const HomeScreen(),
       LibraryScreen(onTrackSelected: _playTrack),
-      NowPlayingScreen(track: _currentTrack),
+      NowPlayingScreen(
+        track: _currentTrack,
+        playlist: _currentPlaylist,
+        onTrackChanged: (track) {
+          setState(() => _currentTrack = track);
+        },
+      ),
       const ProfileScreen(),
     ];
     return Scaffold(

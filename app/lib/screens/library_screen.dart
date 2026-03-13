@@ -6,7 +6,7 @@ import '../models/music_track.dart';
 import '../services/music_service.dart';
 
 class LibraryScreen extends StatefulWidget {
-  final Function(MusicTrack)? onTrackSelected;
+  final Function(MusicTrack track, List<MusicTrack> playlist)? onTrackSelected;
   const LibraryScreen({super.key, this.onTrackSelected});
 
   @override
@@ -165,7 +165,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return GestureDetector(
       onTap: () {
         if (widget.onTrackSelected != null) {
-          widget.onTrackSelected!(track);
+          widget.onTrackSelected!(track, _tracks);
         }
       },
       behavior: HitTestBehavior.opaque,
