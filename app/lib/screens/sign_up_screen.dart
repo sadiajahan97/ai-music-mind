@@ -19,6 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -171,18 +172,18 @@ class _SignUpScreenState extends State<SignUpScreen>
                   // Confirm Password field
                   TextField(
                     controller: _confirmPasswordController,
-                    obscureText: _obscurePassword,
+                    obscureText: _obscureConfirmPassword,
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword
+                          _obscureConfirmPassword
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           color: AppTheme.textTertiary,
                         ),
                         onPressed: () {
-                          setState(() => _obscurePassword = !_obscurePassword);
+                          setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
                         },
                       ),
                     ),

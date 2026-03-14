@@ -28,7 +28,7 @@ The JSON object must strictly follow this format:
 
 Requirements:
 1. Use the user's input strictly as the values.
-2. The lyrics (prompt) and the title must match the mood of the user. Reflect the user's stated mood in tone, imagery, and wording throughout.
+2. The lyrics (prompt) and the title must align with the user's intent. Reflect the user's input in tone, imagery, and wording throughout.
 3. The lyrics (prompt) and the title must be produced in the language that the user asks for. If the user specifies a language, write everything in that language.
 4. For the 'prompt' field (lyrics), aim for a duration as close to four minutes as possible when sung at a moderate tempo, but never exceed four minutes.
 5. The 'prompt' must also not exceed 3000 characters.
@@ -50,5 +50,5 @@ Requirements:
   "title": "Meditación de piano en calma"
 }
 
-Output only the JSON object exactly as shown, nothing else. Remember: lyrics and title must always match the user's mood and be in the language the user requests.
+Output only the JSON object exactly as shown, nothing else. Remember: lyrics and title must always be in the language the user requests.
 """

@@ -28,6 +28,10 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: backgroundLight,
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
       colorScheme: ColorScheme.light(
         primary: primaryOrange,
         secondary: accentBlue,
@@ -103,6 +107,9 @@ class AppTheme {
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
+        ).copyWith(
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -117,6 +124,24 @@ class AppTheme {
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
+        ).copyWith(
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: accentBlue,
+        ).copyWith(
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: ButtonStyle(
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          splashFactory: NoSplash.splashFactory,
+          mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

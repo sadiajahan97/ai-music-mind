@@ -65,6 +65,8 @@ class BottomNavBar extends StatelessWidget {
         // Floating action button
         Positioned(
           top: -22,
+          child: MouseRegion(
+          cursor: SystemMouseCursors.basic,
           child: GestureDetector(
             onTap: onFabPressed,
             child: Container(
@@ -89,6 +91,7 @@ class BottomNavBar extends StatelessWidget {
             ),
           ),
         ),
+        ),
       ],
     );
   }
@@ -100,30 +103,33 @@ class BottomNavBar extends StatelessWidget {
     int index,
   ) {
     final isSelected = currentIndex == index;
-    return GestureDetector(
-      onTap: () => onTap(index),
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 64,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              isSelected ? filledIcon : outlinedIcon,
-              size: 24,
-              color: isSelected ? AppTheme.accentBlue : AppTheme.textTertiary,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 64,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isSelected ? filledIcon : outlinedIcon,
+                size: 24,
                 color: isSelected ? AppTheme.accentBlue : AppTheme.textTertiary,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? AppTheme.accentBlue : AppTheme.textTertiary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

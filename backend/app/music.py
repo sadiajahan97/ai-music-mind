@@ -14,10 +14,11 @@ router = APIRouter(prefix="/music", tags=["music"])
 
 class GenerateMusicRequest(BaseModel):
     user_prompt: str
-    style: str = ""
-    mood: str = ""
-    vocal_gender: Literal["m", "f"] = "m"
-    language: str = "English"
+    style: str
+    vocal_gender: Literal["m", "f"]
+    language: str
+    style_weight: float
+    weirdness_constraint: float
 
 @router.post("/generate")
 async def generate_music(
@@ -27,11 +28,15 @@ async def generate_music(
 ):
     try:
         music_specs = generate_music_specs(
-            request.user_prompt, request.mood, request.language
+            request.user_prompt, request.language
         )
 
         task_id = generate_music_task(
-            music_specs, request.style, request.vocal_gender
+            music_specs,
+            request.style,
+            request.vocal_gender,
+            request.style_weight,
+            request.weirdness_constraint,
         )
 
         await prisma.musictrack.create(
@@ -41,7 +46,9 @@ async def generate_music(
                 "lyrics": music_specs.get("prompt"),
                 "title": music_specs.get("title"),
                 "style": request.style or None,
-                "mood": request.mood or None,
+                "vocalGender": request.vocal_gender,
+                "styleWeight": request.style_weight,
+                "weirdnessConstraint": request.weirdness_constraint,
             }
         )
 
