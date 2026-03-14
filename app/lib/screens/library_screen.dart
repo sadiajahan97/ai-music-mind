@@ -7,7 +7,13 @@ import '../services/music_service.dart';
 
 class LibraryScreen extends StatefulWidget {
   final Function(MusicTrack track, List<MusicTrack> playlist)? onTrackSelected;
-  const LibraryScreen({super.key, this.onTrackSelected});
+  final Function(List<MusicTrack> tracks)? onTracksLoaded;
+
+  const LibraryScreen({
+    super.key,
+    this.onTrackSelected,
+    this.onTracksLoaded,
+  });
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -33,6 +39,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
           _tracks = tracks;
           _isLoading = false;
         });
+        if (widget.onTracksLoaded != null) {
+          widget.onTracksLoaded!(tracks);
+        }
       }
     } catch (e) {
       if (mounted) {

@@ -10,12 +10,14 @@ class NowPlayingScreen extends StatefulWidget {
   final MusicTrack? track;
   final List<MusicTrack>? playlist;
   final Function(MusicTrack)? onTrackChanged;
+  final bool autoPlay;
 
   const NowPlayingScreen({
     super.key,
     this.track,
     this.playlist,
     this.onTrackChanged,
+    this.autoPlay = true,
   });
 
   @override
@@ -44,7 +46,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
 
     _initPlayer();
     if (widget.track != null) {
-      _loadTrack(widget.track!);
+      _loadTrack(widget.track!, play: widget.autoPlay);
     }
   }
 
@@ -77,7 +79,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
     });
   }
 
-  Future<void> _loadTrack(MusicTrack track) async {
+  Future<void> _loadTrack(MusicTrack track, {bool play = true}) async {
     if (!track.isReady) return;
 
     try {
@@ -87,7 +89,9 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
       await _player.setSource(
         UrlSource(url),
       );
-      _player.resume();
+      if (play) {
+        _player.resume();
+      }
     } catch (e) {
       debugPrint("Error loading audio: $e");
     }
@@ -97,7 +101,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
   void didUpdateWidget(NowPlayingScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.track?.id != oldWidget.track?.id && widget.track != null) {
-      _loadTrack(widget.track!);
+      _loadTrack(widget.track!, play: widget.autoPlay);
     }
   }
 
@@ -284,14 +288,19 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
             inactiveTrackColor: AppTheme.dividerColor,
             thumbColor: AppTheme.accentBlue,
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0),
+            overlayColor: WidgetStateColor.transparent,
+            mouseCursor: const WidgetStatePropertyAll(SystemMouseCursors.basic),
           ),
-          child: Slider(
-            value: _progress.clamp(0.0, 1.0),
-            onChanged: (v) {
-              final newPos = Duration(milliseconds: (v * _duration.inMilliseconds).round());
-              _player.seek(newPos);
-            },
+          child: MouseRegion(
+            cursor: SystemMouseCursors.basic,
+            child: Slider(
+              value: _progress.clamp(0.0, 1.0),
+              onChanged: (v) {
+                final newPos = Duration(milliseconds: (v * _duration.inMilliseconds).round());
+                _player.seek(newPos);
+              },
+            ),
           ),
         ),
         Padding(
@@ -329,10 +338,19 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
         //   color: AppTheme.textTertiary,
         //   onPressed: () {},
         // ),
-        IconButton(
-          icon: const Icon(Icons.skip_previous, size: 32),
-          color: AppTheme.textDark,
-          onPressed: _skipPrevious,
+        GestureDetector(
+          onTap: _skipPrevious,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.basic,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.skip_previous,
+                size: 32,
+                color: AppTheme.textDark,
+              ),
+            ),
+          ),
         ),
         // Play/Pause button
         GestureDetector(
@@ -343,31 +361,43 @@ class _NowPlayingScreenState extends State<NowPlayingScreen>
               _player.resume();
             }
           },
-          child: Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              gradient: AppTheme.orangeGradient,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryOrange.withValues(alpha: 0.3),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(
-              _isPlaying ? Icons.pause : Icons.play_arrow,
-              color: Colors.white,
-              size: 32,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.basic,
+            child: Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                gradient: AppTheme.orangeGradient,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryOrange.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                _isPlaying ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+                size: 32,
+              ),
             ),
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.skip_next, size: 32),
-          color: AppTheme.textDark,
-          onPressed: _skipNext,
+        GestureDetector(
+          onTap: _skipNext,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.basic,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Icon(
+                Icons.skip_next,
+                size: 32,
+                color: AppTheme.textDark,
+              ),
+            ),
+          ),
         ),
         // IconButton(
         //   icon: const Icon(Icons.repeat, size: 22),

@@ -14,11 +14,14 @@ class AiMusicMindApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AI Music Mind',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const SignInScreen(),
+    return MouseRegion(
+      cursor: SystemMouseCursors.basic,
+      child: MaterialApp(
+        title: 'AI Music Mind',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const SignInScreen(),
+      ),
     );
   }
 }

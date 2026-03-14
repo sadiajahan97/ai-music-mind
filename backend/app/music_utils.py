@@ -27,7 +27,7 @@ def _download_file(url: str, dest_path: str) -> None:
             f.write(response.read())
 
 def generate_music_specs(
-    user_prompt: str, mood: str = "", language: str = "English"
+    user_prompt: str, language: str
 ) -> dict:
     try:
         model = get_model()
@@ -36,9 +36,6 @@ def generate_music_specs(
 
         if language:
             parts.append(f"Language: {language}")
-
-        if mood:
-            parts.append(f"Mood: {mood}")
 
         parts.append(user_prompt)
 
@@ -57,8 +54,10 @@ def generate_music_specs(
 
 def generate_music_task(
     music_specs: dict,
-    style: str = "",
-    vocal_gender: str = "m",
+    style: str,
+    vocal_gender: str,
+    style_weight: float,
+    weirdness_constraint: float,
 ) -> str:
     vocal = "f" if vocal_gender == "f" else "m"
 
@@ -72,6 +71,8 @@ def generate_music_task(
             "style": style,
             "title": music_specs.get("title", ""),
             "vocalGender": vocal,
+            "styleWeight": style_weight,
+            "weirdnessConstraint": weirdness_constraint,
         }
 
         request = Request(

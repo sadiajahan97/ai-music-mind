@@ -18,12 +18,14 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   MusicTrack? _currentTrack;
   List<MusicTrack> _currentPlaylist = [];
+  bool _shouldPlay = false;
 
   void _playTrack(MusicTrack track, List<MusicTrack> playlist) {
     setState(() {
       _currentTrack = track;
       _currentPlaylist = playlist;
       _currentIndex = 2; // Index of NowPlayingScreen
+      _shouldPlay = true;
     });
   }
 
@@ -31,12 +33,27 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
       const HomeScreen(),
-      LibraryScreen(onTrackSelected: _playTrack),
+      LibraryScreen(
+        onTrackSelected: _playTrack,
+        onTracksLoaded: (tracks) {
+          if (_currentTrack == null && tracks.isNotEmpty) {
+            setState(() {
+              _currentTrack = tracks.first;
+              _currentPlaylist = tracks;
+              _shouldPlay = false; // Do not auto play default track
+            });
+          }
+        },
+      ),
       NowPlayingScreen(
         track: _currentTrack,
         playlist: _currentPlaylist,
+        autoPlay: _shouldPlay,
         onTrackChanged: (track) {
-          setState(() => _currentTrack = track);
+          setState(() {
+            _currentTrack = track;
+            _shouldPlay = true; // Play when track changes (e.g. Skip Next)
+          });
         },
       ),
       const ProfileScreen(),
@@ -51,11 +68,14 @@ class _MainScreenState extends State<MainScreen> {
         onTap: (index) {
           setState(() => _currentIndex = index);
         },
-        onFabPressed: () {
-          Navigator.push(
+        onFabPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const CreateSongScreen()),
           );
+          if (result is int && result >= 0) {
+            setState(() => _currentIndex = result);
+          }
         },
       ),
     );
