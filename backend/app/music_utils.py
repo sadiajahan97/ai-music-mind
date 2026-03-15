@@ -1,3 +1,4 @@
+import time
 from asyncio import CancelledError, sleep, to_thread
 from json import dumps, JSONDecodeError, loads
 from os import environ, makedirs, path
@@ -215,9 +216,12 @@ def _sanitize_path_part(s: str, max_len: int = 200) -> str:
 async def task_loop() -> None:
     while True:
         try:
+            start = time.perf_counter()
             await run_not_ready_tracks_task()
+            elapsed = time.perf_counter() - start
+            print(f"run_not_ready_tracks_task completed in {elapsed:.2f}s")
         except CancelledError:
             break
         except Exception as e:
             print(e)
-        await sleep(30)
+        await sleep(5)
