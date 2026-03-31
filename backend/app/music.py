@@ -20,6 +20,10 @@ class GenerateMusicRequest(BaseModel):
     style_weight: float
     weirdness_constraint: float
 
+
+class UpdateLyricsRequest(BaseModel):
+    lyrics: str
+
 @router.post("/generate")
 async def generate_music(
     request: GenerateMusicRequest,
@@ -56,6 +60,7 @@ async def generate_music(
         return {
             "taskId": task_id,
             "title": music_specs.get("title"),
+            "lyrics": music_specs.get("prompt"),
             "owner_name": user.name if user else None,
             "owner_email": user.email if user else None,
         }
@@ -103,6 +108,50 @@ async def get_music_track(
         **track.model_dump(),
         "owner_name": track.user.name if track.user else None,
         "owner_email": track.user.email if track.user else None,
+    }
+
+
+@router.get("/tracks/{track_id}/lyrics")
+async def get_music_track_lyrics(
+    track_id: str,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    track = await prisma.musictrack.find_first(
+        where={"id": track_id, "userId": user_id},
+    )
+
+    if track is None:
+        raise HTTPException(status_code=404, detail="Track not found")
+
+    return {
+        "trackId": track.id,
+        "lyrics": track.lyrics,
+    }
+
+
+@router.patch("/tracks/{track_id}/lyrics")
+async def update_music_track_lyrics(
+    track_id: str,
+    request: UpdateLyricsRequest,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    track = await prisma.musictrack.find_first(
+        where={"id": track_id, "userId": user_id},
+    )
+
+    if track is None:
+        raise HTTPException(status_code=404, detail="Track not found")
+
+    updated_track = await prisma.musictrack.update(
+        where={"id": track_id},
+        data={"lyrics": request.lyrics},
+    )
+
+    return {
+        "trackId": updated_track.id,
+        "lyrics": updated_track.lyrics,
     }
 
 @router.get("/tracks/{track_id}/file")
