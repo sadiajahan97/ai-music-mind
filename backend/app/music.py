@@ -12,17 +12,39 @@ from app.music_utils import generate_music_specs, generate_music_task, get_music
 
 router = APIRouter(prefix="/music", tags=["music"])
 
-class GenerateMusicRequest(BaseModel):
+class GenerateLyricsRequest(BaseModel):
     user_prompt: str
+    language: str
+
+
+class GenerateMusicRequest(BaseModel):
+    lyrics: str
+    title: str
     style: str
     vocal_gender: Literal["m", "f"]
-    language: str
     style_weight: float
     weirdness_constraint: float
 
 
 class UpdateLyricsRequest(BaseModel):
     lyrics: str
+
+@router.post("/generate/lyrics")
+async def generate_lyrics(request: GenerateLyricsRequest):
+    try:
+        music_specs = generate_music_specs(
+            request.user_prompt, request.language
+        )
+        return {
+            "title": music_specs.get("title"),
+            "lyrics": music_specs.get("prompt"),
+        }
+    except (RuntimeError, ValueError) as e:
+        raise HTTPException(
+            detail=str(e),
+            status_code=502,
+        ) from e
+
 
 @router.post("/generate")
 async def generate_music(
@@ -32,10 +54,10 @@ async def generate_music(
 ):
     try:
         user = await prisma.user.find_unique(where={"id": user_id})
-        music_specs = generate_music_specs(
-            request.user_prompt, request.language
-        )
-
+        music_specs = {
+            "title": request.title,
+            "prompt": request.lyrics,
+        }
         task_id = generate_music_task(
             music_specs,
             request.style,
