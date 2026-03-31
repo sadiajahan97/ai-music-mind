@@ -8,23 +8,24 @@ generator client {
 }
 
 model MusicTrack {
-  id                  String   @id @default(uuid())
+  id                  String    @id @default(uuid())
   duration            Int?
-  filePath            String?  @map("file_path")
-  imageUrl            String?  @map("image_url")
-  isReady             Boolean  @default(false) @map("is_ready")
+  filePath            String?   @map("file_path")
+  imageUrl            String?   @map("image_url")
+  isReady             Boolean   @default(false) @map("is_ready")
   lyrics              String?
   model               String?
   style               String?
-  styleWeight         Float?   @map("style_weight")
+  styleWeight         Float?    @map("style_weight")
   tags                String?
   title               String?
-  vocalGender         String?  @map("vocal_gender")
-  weirdnessConstraint Float?   @map("weirdness_constraint")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
-  userId              String   @map("user_id")
-  user                User     @relation(fields: [userId], references: [id])
+  vocalGender         String?   @map("vocal_gender")
+  weirdnessConstraint Float?    @map("weirdness_constraint")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  releasedAt          DateTime? @map("released_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  userId              String    @map("user_id")
+  user                User      @relation(fields: [userId], references: [id])
 
   @@map("music_tracks")
 }

@@ -27,6 +27,7 @@ async def generate_music(
     prisma: Prisma = Depends(get_db),
 ):
     try:
+        user = await prisma.user.find_unique(where={"id": user_id})
         music_specs = generate_music_specs(
             request.user_prompt, request.language
         )
@@ -55,17 +56,9 @@ async def generate_music(
         return {
             "taskId": task_id,
             "title": music_specs.get("title"),
+            "owner_name": user.name if user else None,
+            "owner_email": user.email if user else None,
         }
-    except (RuntimeError, ValueError) as e:
-        raise HTTPException(
-            detail=str(e),
-            status_code=502,
-        ) from e
-
-@router.get("/task/{task_id}")
-def get_music_task(task_id: str):
-    try:
-        return get_music_task_info(task_id)
     except (RuntimeError, ValueError) as e:
         raise HTTPException(
             detail=str(e),
@@ -80,9 +73,17 @@ async def get_music_tracks(
     tracks = await prisma.musictrack.find_many(
         where={"userId": user_id},
         order={"createdAt": "desc"},
+        include={"user": True},
     )
 
-    return [t.model_dump() for t in tracks]
+    return [
+        {
+            **t.model_dump(),
+            "owner_name": t.user.name if t.user else None,
+            "owner_email": t.user.email if t.user else None,
+        }
+        for t in tracks
+    ]
 
 @router.get("/tracks/{track_id}")
 async def get_music_track(
@@ -92,12 +93,17 @@ async def get_music_track(
 ):
     track = await prisma.musictrack.find_first(
         where={"id": track_id, "userId": user_id},
+        include={"user": True},
     )
 
     if track is None:
         raise HTTPException(status_code=404, detail="Track not found")
 
-    return track.model_dump()
+    return {
+        **track.model_dump(),
+        "owner_name": track.user.name if track.user else None,
+        "owner_email": track.user.email if track.user else None,
+    }
 
 @router.get("/tracks/{track_id}/file")
 async def get_music_track_file(
