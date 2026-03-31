@@ -1,5 +1,7 @@
 Dockerfile
+Dockerfile.dev
 .env
+.env.example
 .git
 .gitignore
 __pycache__
