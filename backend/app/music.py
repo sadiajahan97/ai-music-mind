@@ -118,6 +118,48 @@ async def get_music_tracks(
         for t in tracks
     ]
 
+@router.get("/published")
+async def get_published_tracks(
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    tracks = await prisma.musictrack.find_many(
+        where={
+            "isPublished": True,
+            "userId": user_id,
+        },
+        order={"releasedAt": "desc"},
+        include={"user": True},
+    )
+
+    return [
+        {
+            **t.model_dump(),
+            "owner_name": t.user.name if t.user else None,
+            "owner_email": t.user.email if t.user else None,
+        }
+        for t in tracks
+    ]
+
+@router.get("/tracks/published/all")
+async def get_all_published_tracks(
+    prisma: Prisma = Depends(get_db),
+):
+    tracks = await prisma.musictrack.find_many(
+        where={"isPublished": True},
+        order={"releasedAt": "desc"},
+        include={"user": True},
+    )
+
+    return [
+        {
+            **t.model_dump(),
+            "owner_name": t.user.name if t.user else None,
+            "owner_email": t.user.email if t.user else None,
+        }
+        for t in tracks
+    ]
+
 @router.get("/tracks/{track_id}")
 async def get_music_track(
     track_id: str,
