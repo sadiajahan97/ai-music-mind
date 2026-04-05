@@ -14,6 +14,7 @@ model MusicTrack {
   imageUrl            String?   @map("image_url")
   isExplicit          Boolean   @default(false) @map("is_explicit")
   isPublished         Boolean   @default(false) @map("is_published")
+  isSaved             Boolean   @default(false) @map("is_saved")
   lyrics              String?
   model               String?
   price               Float?

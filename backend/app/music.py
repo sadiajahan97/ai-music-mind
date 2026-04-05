@@ -42,6 +42,10 @@ class PublishMusicResponse(BaseModel):
     trackId: str
     title: str
 
+class SaveMusicResponse(BaseModel):
+    trackId: str
+    title: str
+
 class TrackDetailResponse(BaseModel):
     id: str
     duration: int | None = None
@@ -49,6 +53,7 @@ class TrackDetailResponse(BaseModel):
     imageUrl: str | None = None
     isExplicit: bool
     isPublished: bool
+    isSaved: bool
     status: str | None = None
     lyrics: str | None = None
     model: str | None = None
@@ -158,7 +163,10 @@ async def get_music_tracks(
     prisma: Prisma = Depends(get_db),
 ):
     tracks = await prisma.musictrack.find_many(
-        where={"userId": user_id},
+        where={
+            "userId": user_id,
+            "isSaved": True,
+        },
         order={"createdAt": "desc"},
         include={"user": True},
     )
@@ -292,6 +300,29 @@ async def publish_music_track(
             "isExplicit": request.isExplicit,
             "isPublished": True,
         },
+    )
+
+    return {
+        "trackId": updated_track.id,
+        "title": updated_track.title or "",
+    }
+
+@router.post("/tracks/{track_id}/save", response_model=SaveMusicResponse)
+async def save_music_track(
+    track_id: str,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    track = await prisma.musictrack.find_first(
+        where={"id": track_id, "userId": user_id},
+    )
+
+    if track is None:
+        raise HTTPException(status_code=404, detail="Track not found")
+
+    updated_track = await prisma.musictrack.update(
+        where={"id": track_id},
+        data={"isSaved": True},
     )
 
     return {
