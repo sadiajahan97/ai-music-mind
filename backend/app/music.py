@@ -11,6 +11,25 @@ from app.auth_middleware import get_current_user_id
 from app.db import get_db
 from app.music_utils import generate_music_specs, generate_music_task
 
+async def _delete_tracks_and_files(prisma: Prisma, user_id: str, is_saved: bool = False):
+    tracks = await prisma.musictrack.find_many(
+        where={"userId": user_id, "isSaved": is_saved}
+    )
+    
+    for t in tracks:
+        if t.filePath:
+            p = Path(t.filePath)
+            if p.is_file():
+                try:
+                    p.unlink()
+                except Exception as e:
+                    print(f"Failed to delete file {p}: {e}")
+                    
+    count = await prisma.musictrack.delete_many(
+        where={"userId": user_id, "isSaved": is_saved}
+    )
+    return count
+
 router = APIRouter(prefix="/music", tags=["music"])
 
 class GenerateLyricsRequest(BaseModel):
@@ -21,7 +40,7 @@ class GenerateLyricsRequest(BaseModel):
 
 
 class GenerateMusicRequest(BaseModel):
-    track_id: str
+    track_id: str | None = None
     lyrics: str
     title: str
     style: str
@@ -46,6 +65,9 @@ class SaveMusicResponse(BaseModel):
     trackId: str
     title: str
 
+class DeleteUnsavedResponse(BaseModel):
+    deleted_count: int
+
 class TrackDetailResponse(BaseModel):
     id: str
     duration: int | None = None
@@ -56,20 +78,42 @@ class TrackDetailResponse(BaseModel):
     isSaved: bool
     status: str | None = None
     lyrics: str | None = None
-    model: str | None = None
     price: float | None = None
     style: str | None = None
-    styleWeight: float | None = None
     tags: str | None = None
     title: str | None = None
     vocalGender: str | None = None
-    weirdnessConstraint: float | None = None
     createdAt: datetime
     releasedAt: datetime | None = None
     updatedAt: datetime
     taskId: str | None = None
     owner_name: str | None = None
     owner_email: str | None = None
+
+class UnsavedTrackItem(BaseModel):
+    id: str
+    duration: int | None = None
+    filePath: str | None = None
+    imageUrl: str | None = None
+    isExplicit: bool
+    isPublished: bool
+    isSaved: bool
+    status: str | None = None
+    price: float | None = None
+    tags: str | None = None
+    createdAt: datetime
+    releasedAt: datetime | None = None
+    updatedAt: datetime
+    taskId: str | None = None
+
+class UnsavedTracksResponse(BaseModel):
+    lyrics: str | None = None
+    style: str | None = None
+    title: str | None = None
+    vocalGender: str | None = None
+    owner_name: str | None = None
+    owner_email: str | None = None
+    music_tracks: list[UnsavedTrackItem]
 
 class PublishMusicRequest(BaseModel):
     price: float
@@ -87,6 +131,8 @@ async def generate_lyrics(
             request.user_prompt, request.language, request.lyrics_to_music_ratio, request.style
         )
         
+        await _delete_tracks_and_files(prisma, user_id, is_saved=False)
+
         track = await prisma.musictrack.create(
             data={
                 "userId": user_id,
@@ -115,11 +161,12 @@ async def generate_music(
     prisma: Prisma = Depends(get_db),
 ):
     try:
-        track = await prisma.musictrack.find_first(
-            where={"id": request.track_id, "userId": user_id}
-        )
-        if not track:
-            raise HTTPException(status_code=404, detail="Track not found")
+        if request.track_id:
+            track = await prisma.musictrack.find_first(
+                where={"id": request.track_id, "userId": user_id}
+            )
+            if not track:
+                raise HTTPException(status_code=404, detail="Track not found")
             
         music_specs = {
             "title": request.title,
@@ -133,22 +180,40 @@ async def generate_music(
             request.weirdness_constraint,
         )
 
-        await prisma.musictrack.update(
-            where={"id": request.track_id},
-            data={
-                "taskId": task_id,
-                "lyrics": music_specs.get("prompt"),
-                "title": music_specs.get("title"),
-                "style": request.style or None,
-                "vocalGender": request.vocal_gender,
-                "styleWeight": request.style_weight,
-                "weirdnessConstraint": request.weirdness_constraint,
-                "status": "processing",
-            }
-        )
+        final_track_id = request.track_id
+
+        if request.track_id:
+            await prisma.musictrack.update(
+                where={"id": request.track_id},
+                data={
+                    "taskId": task_id,
+                    "lyrics": music_specs.get("prompt"),
+                    "title": music_specs.get("title"),
+                    "style": request.style,
+                    "vocalGender": request.vocal_gender,
+                    "styleWeight": request.style_weight,
+                    "weirdnessConstraint": request.weirdness_constraint,
+                    "status": "processing",
+                }
+            )
+        else:
+            new_track = await prisma.musictrack.create(
+                data={
+                    "userId": user_id,
+                    "taskId": task_id,
+                    "lyrics": music_specs.get("prompt"),
+                    "title": music_specs.get("title"),
+                    "style": request.style,
+                    "vocalGender": request.vocal_gender,
+                    "styleWeight": request.style_weight,
+                    "weirdnessConstraint": request.weirdness_constraint,
+                    "status": "processing",
+                }
+            )
+            final_track_id = new_track.id
 
         return {
-            "trackId": request.track_id,
+            "trackId": final_track_id,
             "title": music_specs.get("title"),
         }
     except (RuntimeError, ValueError) as e:
@@ -179,6 +244,51 @@ async def get_music_tracks(
         }
         for t in tracks
     ]
+
+@router.get("/unsaved", response_model=UnsavedTracksResponse)
+async def get_unsaved_tracks(
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    tracks = await prisma.musictrack.find_many(
+        where={
+            "userId": user_id,
+            "isSaved": False,
+        },
+        order={"createdAt": "desc"},
+        include={"user": True},
+    )
+
+    if not tracks:
+        return UnsavedTracksResponse(music_tracks=[])
+
+    first = tracks[0]
+    
+    music_tracks = []
+    for t in tracks:
+        item = t.model_dump()
+        for field in ["lyrics", "style", "title", "vocalGender"]:
+            item.pop(field, None)
+        music_tracks.append(UnsavedTrackItem(**item))
+
+    return UnsavedTracksResponse(
+        lyrics=first.lyrics,
+        style=first.style,
+        title=first.title,
+        vocalGender=first.vocalGender,
+        owner_name=first.user.name if first.user else None,
+        owner_email=first.user.email if first.user else None,
+        music_tracks=music_tracks
+    )
+
+@router.delete("/unsaved", response_model=DeleteUnsavedResponse)
+async def delete_unsaved_tracks(
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    count = await _delete_tracks_and_files(prisma, user_id, is_saved=False)
+
+    return {"deleted_count": count}
 
 @router.get("/published", response_model=list[TrackDetailResponse])
 async def get_published_tracks(
@@ -324,6 +434,8 @@ async def save_music_track(
         where={"id": track_id},
         data={"isSaved": True},
     )
+
+    await _delete_tracks_and_files(prisma, user_id, is_saved=False)
 
     return {
         "trackId": updated_track.id,
