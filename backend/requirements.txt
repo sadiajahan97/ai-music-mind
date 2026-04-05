@@ -1,4 +1,5 @@
 bcrypt==4.1.2
+boto3==1.42.78
 email-validator==2.1.0
 fastapi==0.129.0
 langchain==1.2.10

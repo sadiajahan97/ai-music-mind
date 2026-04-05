@@ -1,15 +1,15 @@
 from datetime import datetime
-from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import RedirectResponse
 from prisma import Prisma
 from pydantic import BaseModel
 
 from app.auth_middleware import get_current_user_id
 from app.db import get_db
 from app.music_utils import generate_music_specs, generate_music_task
+from app.s3 import AWS_BUCKET_NAME, s3_client
 
 async def _delete_tracks_and_files(prisma: Prisma, user_id: str, is_saved: bool = False):
     tracks = await prisma.musictrack.find_many(
@@ -18,12 +18,10 @@ async def _delete_tracks_and_files(prisma: Prisma, user_id: str, is_saved: bool 
     
     for t in tracks:
         if t.filePath:
-            p = Path(t.filePath)
-            if p.is_file():
-                try:
-                    p.unlink()
-                except Exception as e:
-                    print(f"Failed to delete file {p}: {e}")
+            try:
+                s3_client.delete_object(Bucket=AWS_BUCKET_NAME, Key=t.filePath)
+            except Exception as e:
+                print(f"Failed to delete S3 file {t.filePath}: {e}")
                     
     count = await prisma.musictrack.delete_many(
         where={"userId": user_id, "isSaved": is_saved}
@@ -366,27 +364,25 @@ async def get_music_track_file(
     if track is None or not track.filePath:
         raise HTTPException(status_code=404, detail="Track or file not found")
 
-    path = Path(track.filePath)
+    params = {
+        "Bucket": AWS_BUCKET_NAME,
+        "Key": track.filePath,
+    }
 
-    if not path.is_file():
-        raise HTTPException(status_code=404, detail="File not found")
+    if download:
+        filename = (track.title or track_id).strip() or "track"
+        safe_name = "".join(c for c in filename if c.isalnum() or c in " ._-")[:200]
+        if not safe_name.endswith(".mp3"):
+            safe_name += ".mp3"
+        params["ResponseContentDisposition"] = f'attachment; filename="{safe_name}"'
 
-    filename = (track.title or track_id).strip() or "track"
-
-    safe_name = "".join(c for c in filename if c.isalnum() or c in " ._-")[:200]
-
-    ext = path.suffix or ".mp3"
-
-    if not safe_name.endswith(ext):
-        safe_name = f"{safe_name}{ext}"
-
-    media_type = "audio/mpeg" if ext.lower() == ".mp3" else "audio/mp4" if ext.lower() == ".m4a" else "audio/wav"
-
-    return FileResponse(
-        path,
-        media_type=media_type,
-        filename=safe_name if download else None,
+    url = s3_client.generate_presigned_url(
+        "get_object",
+        Params=params,
+        ExpiresIn=3600,
     )
+
+    return RedirectResponse(url)
 
 @router.post("/tracks/{track_id}/publish", response_model=PublishMusicResponse)
 async def publish_music_track(

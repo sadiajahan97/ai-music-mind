@@ -1,20 +1,21 @@
 import time
 from asyncio import CancelledError, sleep, to_thread
 from json import dumps, JSONDecodeError, loads
-from os import environ, makedirs, path
 from re import sub
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
+from tempfile import NamedTemporaryFile
 from app.constants import KIE_GENERATE_URL, KIE_HEADERS, KIE_RECORD_INFO_URL, SYSTEM_PROMPT
 from app.db import get_db
 from app.model import get_model
+from app.s3 import AWS_BUCKET_NAME, s3_client
 
-STORAGE_DIR = environ.get("STORAGE_DIR", "storage")
+from app.s3 import AWS_BUCKET_NAME, s3_client
 
-def _download_file(url: str, dest_path: str) -> None:
+def _upload_url_to_s3(url: str, key: str) -> None:
     request = Request(
         url,
         headers={
@@ -24,8 +25,15 @@ def _download_file(url: str, dest_path: str) -> None:
     )
 
     with urlopen(request) as response:
-        with open(dest_path, "wb") as f:
-            f.write(response.read())
+        with NamedTemporaryFile(delete=True) as tmp:
+            tmp.write(response.read())
+            tmp.flush()
+            s3_client.upload_file(
+                tmp.name, 
+                AWS_BUCKET_NAME, 
+                key,
+                ExtraArgs={"ContentType": "audio/mpeg"}
+            )
 
 def generate_music_specs(
     user_prompt: str, language: str, lyrics_to_music_ratio: float, style: str
@@ -175,32 +183,24 @@ async def run_not_ready_tracks_task() -> None:
                     )
 
                     if track and download_url:
-                        user_dir_name = f"{_sanitize_path_part(track.user.id)}_{_sanitize_path_part(track.user.name)}"
-
-                        user_dir = path.join(STORAGE_DIR, user_dir_name)
-
-                        makedirs(user_dir, exist_ok=True)
-
                         title = (track.title or suno.get("title") or "untitled").strip()
-
                         safe_title = _sanitize_path_part(title)
-
-                        ext = "mp3"
-
-                        file_name = f"{_sanitize_path_part(task_id)}_{safe_title}.{ext}"
-
-                        dest_path = path.join(user_dir, file_name)
+                        
+                        s3_key = f"tracks/{track.userId}/{task_id}_{safe_title}.mp3"
 
                         try:
-                            await to_thread(_download_file, download_url, dest_path)
+                            await to_thread(_upload_url_to_s3, download_url, s3_key)
                         except Exception as e:
-                            print(f"Download failed for {task_id}: {e}")
+                            print(f"S3 Upload failed for {task_id}: {e}")
+                            s3_key = None
+                    else:
+                        s3_key = None
 
                     await prisma.musictrack.update(
                         where={"taskId": task_id},
                         data={
                             "duration": int(duration * 1000) if duration is not None else None,
-                            "filePath": dest_path,
+                            "filePath": s3_key,
                             "imageUrl": suno.get("sourceImageUrl"),
                             "status": "complete",
                             "model": suno.get("modelName"),
