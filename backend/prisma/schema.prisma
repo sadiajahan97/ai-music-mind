@@ -14,13 +14,14 @@ model MusicTrack {
   imageUrl            String?   @map("image_url")
   isExplicit          Boolean   @default(false) @map("is_explicit")
   isPublished         Boolean   @default(false) @map("is_published")
-  isReady             Boolean   @default(false) @map("is_ready")
   lyrics              String?
   model               String?
   price               Float?
+  status              String?
   style               String?
   styleWeight         Float?    @map("style_weight")
   tags                String?
+  taskId              String?   @map("task_id")
   title               String?
   vocalGender         String?   @map("vocal_gender")
   weirdnessConstraint Float?    @map("weirdness_constraint")

@@ -18,10 +18,16 @@ class SignUpRequest(BaseModel):
     password: str
     name: str
 
+class UserResponse(BaseModel):
+    id: str
+    email: EmailStr
+    name: str
+    is_premium: bool
+
 class TokenResponse(BaseModel):
     access_token: str
     expires_at: datetime
-    user: dict
+    user: UserResponse
 
 @router.post("/sign-in", response_model=TokenResponse)
 async def sign_in(

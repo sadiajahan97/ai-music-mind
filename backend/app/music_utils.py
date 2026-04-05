@@ -28,7 +28,7 @@ def _download_file(url: str, dest_path: str) -> None:
             f.write(response.read())
 
 def generate_music_specs(
-    user_prompt: str, language: str
+    user_prompt: str, language: str, lyrics_to_music_ratio: float, style: str
 ) -> dict:
     try:
         model = get_model()
@@ -37,6 +37,12 @@ def generate_music_specs(
 
         if language:
             parts.append(f"Language: {language}")
+
+        if style:
+            parts.append(f"Style: {style}")
+
+        if lyrics_to_music_ratio:
+            parts.append(f"Lyrics duration: {round(lyrics_to_music_ratio * 240)} seconds")
 
         parts.append(user_prompt)
 
@@ -72,9 +78,12 @@ def generate_music_task(
             "style": style,
             "title": music_specs.get("title", ""),
             "vocalGender": vocal,
-            "styleWeight": style_weight,
-            "weirdnessConstraint": weirdness_constraint,
         }
+
+        if style_weight is not None:
+            payload["styleWeight"] = style_weight
+        if weirdness_constraint is not None:
+            payload["weirdnessConstraint"] = weirdness_constraint
 
         request = Request(
             KIE_GENERATE_URL,
@@ -142,12 +151,14 @@ async def run_not_ready_tracks_task() -> None:
         prisma = await anext(gen)
 
         tracks = await prisma.musictrack.find_many(
-            where={"isReady": False},
+            where={
+                "status": "processing",
+                "NOT": {"taskId": None},
+            },
         )
 
-        ids = [t.id for t in tracks]
-
-        for task_id in ids:
+        for track_obj in tracks:
+            task_id = track_obj.taskId
             try:
                 info = get_music_task_info(task_id)
 
@@ -159,7 +170,7 @@ async def run_not_ready_tracks_task() -> None:
                     download_url = suno.get("sourceAudioUrl")
 
                     track = await prisma.musictrack.find_first(
-                        where={"id": task_id},
+                        where={"taskId": task_id},
                         include={"user": True},
                     )
 
@@ -186,12 +197,12 @@ async def run_not_ready_tracks_task() -> None:
                             print(f"Download failed for {task_id}: {e}")
 
                     await prisma.musictrack.update(
-                        where={"id": task_id},
+                        where={"taskId": task_id},
                         data={
                             "duration": int(duration * 1000) if duration is not None else None,
                             "filePath": dest_path,
                             "imageUrl": suno.get("sourceImageUrl"),
-                            "isReady": True,
+                            "status": "complete",
                             "model": suno.get("modelName"),
                             "tags": suno.get("tags"),
                         },

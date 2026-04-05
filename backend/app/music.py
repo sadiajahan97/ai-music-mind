@@ -16,34 +16,85 @@ router = APIRouter(prefix="/music", tags=["music"])
 class GenerateLyricsRequest(BaseModel):
     user_prompt: str
     language: str
+    lyrics_to_music_ratio: float
+    style: str
 
 
 class GenerateMusicRequest(BaseModel):
+    track_id: str
     lyrics: str
     title: str
     style: str
     vocal_gender: Literal["m", "f"]
-    style_weight: float
-    weirdness_constraint: float
+    style_weight: float | None = None
+    weirdness_constraint: float | None = None
 
 
-class UpdateLyricsRequest(BaseModel):
-    lyrics: str
+class GenerateLyricsResponse(BaseModel):
+    trackId: str
+    title: str
+
+class GenerateMusicResponse(BaseModel):
+    trackId: str
+    title: str
+
+class PublishMusicResponse(BaseModel):
+    trackId: str
+    title: str
+
+class TrackDetailResponse(BaseModel):
+    id: str
+    duration: int | None = None
+    filePath: str | None = None
+    imageUrl: str | None = None
+    isExplicit: bool
+    isPublished: bool
+    status: str | None = None
+    lyrics: str | None = None
+    model: str | None = None
+    price: float | None = None
+    style: str | None = None
+    styleWeight: float | None = None
+    tags: str | None = None
+    title: str | None = None
+    vocalGender: str | None = None
+    weirdnessConstraint: float | None = None
+    createdAt: datetime
+    releasedAt: datetime | None = None
+    updatedAt: datetime
+    taskId: str | None = None
+    owner_name: str | None = None
+    owner_email: str | None = None
 
 class PublishMusicRequest(BaseModel):
     price: float
     releasedAt: datetime
     isExplicit: bool
 
-@router.post("/generate/lyrics")
-async def generate_lyrics(request: GenerateLyricsRequest):
+@router.post("/generate/lyrics", response_model=GenerateLyricsResponse)
+async def generate_lyrics(
+    request: GenerateLyricsRequest,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
     try:
         music_specs = generate_music_specs(
-            request.user_prompt, request.language
+            request.user_prompt, request.language, request.lyrics_to_music_ratio, request.style
         )
+        
+        track = await prisma.musictrack.create(
+            data={
+                "userId": user_id,
+                "lyrics": music_specs.get("prompt"),
+                "title": music_specs.get("title"),
+                "style": request.style,
+                "status": "pending",
+            }
+        )
+
         return {
-            "title": music_specs.get("title"),
-            "lyrics": music_specs.get("prompt"),
+            "trackId": track.id,
+            "title": track.title,
         }
     except (RuntimeError, ValueError) as e:
         raise HTTPException(
@@ -52,14 +103,19 @@ async def generate_lyrics(request: GenerateLyricsRequest):
         ) from e
 
 
-@router.post("/generate")
+@router.post("/generate", response_model=GenerateMusicResponse)
 async def generate_music(
     request: GenerateMusicRequest,
     user_id: str = Depends(get_current_user_id),
     prisma: Prisma = Depends(get_db),
 ):
     try:
-        user = await prisma.user.find_unique(where={"id": user_id})
+        track = await prisma.musictrack.find_first(
+            where={"id": request.track_id, "userId": user_id}
+        )
+        if not track:
+            raise HTTPException(status_code=404, detail="Track not found")
+            
         music_specs = {
             "title": request.title,
             "prompt": request.lyrics,
@@ -72,25 +128,23 @@ async def generate_music(
             request.weirdness_constraint,
         )
 
-        await prisma.musictrack.create(
+        await prisma.musictrack.update(
+            where={"id": request.track_id},
             data={
-                "id": task_id,
-                "userId": user_id,
+                "taskId": task_id,
                 "lyrics": music_specs.get("prompt"),
                 "title": music_specs.get("title"),
                 "style": request.style or None,
                 "vocalGender": request.vocal_gender,
                 "styleWeight": request.style_weight,
                 "weirdnessConstraint": request.weirdness_constraint,
+                "status": "processing",
             }
         )
 
         return {
-            "taskId": task_id,
+            "trackId": request.track_id,
             "title": music_specs.get("title"),
-            "lyrics": music_specs.get("prompt"),
-            "owner_name": user.name if user else None,
-            "owner_email": user.email if user else None,
         }
     except (RuntimeError, ValueError) as e:
         raise HTTPException(
@@ -98,7 +152,7 @@ async def generate_music(
             status_code=502,
         ) from e
 
-@router.get("/tracks")
+@router.get("/tracks", response_model=list[TrackDetailResponse])
 async def get_music_tracks(
     user_id: str = Depends(get_current_user_id),
     prisma: Prisma = Depends(get_db),
@@ -118,7 +172,7 @@ async def get_music_tracks(
         for t in tracks
     ]
 
-@router.get("/published")
+@router.get("/published", response_model=list[TrackDetailResponse])
 async def get_published_tracks(
     user_id: str = Depends(get_current_user_id),
     prisma: Prisma = Depends(get_db),
@@ -141,7 +195,7 @@ async def get_published_tracks(
         for t in tracks
     ]
 
-@router.get("/tracks/published/all")
+@router.get("/tracks/published/all", response_model=list[TrackDetailResponse])
 async def get_all_published_tracks(
     prisma: Prisma = Depends(get_db),
 ):
@@ -160,7 +214,7 @@ async def get_all_published_tracks(
         for t in tracks
     ]
 
-@router.get("/tracks/{track_id}")
+@router.get("/tracks/{track_id}", response_model=TrackDetailResponse)
 async def get_music_track(
     track_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -178,50 +232,6 @@ async def get_music_track(
         **track.model_dump(),
         "owner_name": track.user.name if track.user else None,
         "owner_email": track.user.email if track.user else None,
-    }
-
-
-@router.get("/tracks/{track_id}/lyrics")
-async def get_music_track_lyrics(
-    track_id: str,
-    user_id: str = Depends(get_current_user_id),
-    prisma: Prisma = Depends(get_db),
-):
-    track = await prisma.musictrack.find_first(
-        where={"id": track_id, "userId": user_id},
-    )
-
-    if track is None:
-        raise HTTPException(status_code=404, detail="Track not found")
-
-    return {
-        "trackId": track.id,
-        "lyrics": track.lyrics,
-    }
-
-
-@router.patch("/tracks/{track_id}/lyrics")
-async def update_music_track_lyrics(
-    track_id: str,
-    request: UpdateLyricsRequest,
-    user_id: str = Depends(get_current_user_id),
-    prisma: Prisma = Depends(get_db),
-):
-    track = await prisma.musictrack.find_first(
-        where={"id": track_id, "userId": user_id},
-    )
-
-    if track is None:
-        raise HTTPException(status_code=404, detail="Track not found")
-
-    updated_track = await prisma.musictrack.update(
-        where={"id": track_id},
-        data={"lyrics": request.lyrics},
-    )
-
-    return {
-        "trackId": updated_track.id,
-        "lyrics": updated_track.lyrics,
     }
 
 @router.get("/tracks/{track_id}/file")
@@ -260,7 +270,7 @@ async def get_music_track_file(
         filename=safe_name if download else None,
     )
 
-@router.post("/tracks/{track_id}/publish")
+@router.post("/tracks/{track_id}/publish", response_model=PublishMusicResponse)
 async def publish_music_track(
     track_id: str,
     request: PublishMusicRequest,
@@ -284,4 +294,7 @@ async def publish_music_track(
         },
     )
 
-    return updated_track.model_dump()
+    return {
+        "trackId": updated_track.id,
+        "title": updated_track.title or "",
+    }

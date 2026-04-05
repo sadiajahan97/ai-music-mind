@@ -4,10 +4,17 @@ from prisma import Prisma
 from app.auth_middleware import get_current_user_id
 from app.auth_utils import user_to_response
 from app.db import get_db
+from pydantic import BaseModel
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+    is_premium: bool
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
-@router.get("/")
+@router.get("/", response_model=UserResponse)
 async def get_profile(
     user_id: str = Depends(get_current_user_id),
     prisma: Prisma = Depends(get_db),
