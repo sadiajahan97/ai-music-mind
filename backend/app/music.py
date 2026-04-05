@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -8,7 +9,7 @@ from pydantic import BaseModel
 
 from app.auth_middleware import get_current_user_id
 from app.db import get_db
-from app.music_utils import generate_music_specs, generate_music_task, get_music_task_info
+from app.music_utils import generate_music_specs, generate_music_task
 
 router = APIRouter(prefix="/music", tags=["music"])
 
@@ -28,6 +29,11 @@ class GenerateMusicRequest(BaseModel):
 
 class UpdateLyricsRequest(BaseModel):
     lyrics: str
+
+class PublishMusicRequest(BaseModel):
+    price: float
+    releasedAt: datetime
+    isExplicit: bool
 
 @router.post("/generate/lyrics")
 async def generate_lyrics(request: GenerateLyricsRequest):
@@ -211,3 +217,29 @@ async def get_music_track_file(
         media_type=media_type,
         filename=safe_name if download else None,
     )
+
+@router.post("/tracks/{track_id}/publish")
+async def publish_music_track(
+    track_id: str,
+    request: PublishMusicRequest,
+    user_id: str = Depends(get_current_user_id),
+    prisma: Prisma = Depends(get_db),
+):
+    track = await prisma.musictrack.find_first(
+        where={"id": track_id, "userId": user_id},
+    )
+
+    if track is None:
+        raise HTTPException(status_code=404, detail="Track not found")
+
+    updated_track = await prisma.musictrack.update(
+        where={"id": track_id},
+        data={
+            "price": request.price,
+            "releasedAt": request.releasedAt,
+            "isExplicit": request.isExplicit,
+            "isPublished": True,
+        },
+    )
+
+    return updated_track.model_dump()

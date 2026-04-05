@@ -12,9 +12,12 @@ model MusicTrack {
   duration            Int?
   filePath            String?   @map("file_path")
   imageUrl            String?   @map("image_url")
+  isExplicit          Boolean   @default(false) @map("is_explicit")
+  isPublished         Boolean   @default(false) @map("is_published")
   isReady             Boolean   @default(false) @map("is_ready")
   lyrics              String?
   model               String?
+  price               Float?
   style               String?
   styleWeight         Float?    @map("style_weight")
   tags                String?
