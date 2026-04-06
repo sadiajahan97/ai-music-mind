@@ -50,10 +50,29 @@ class GenerateMusicRequest(BaseModel):
 class GenerateLyricsResponse(BaseModel):
     trackId: str
     title: str
+    lyrics: str
 
 class GenerateMusicResponse(BaseModel):
-    trackId: str
-    title: str
+    id: str
+    duration: int | None = None
+    filePath: str | None = None
+    imageUrl: str | None = None
+    isExplicit: bool
+    isPublished: bool
+    isSaved: bool
+    status: str | None = None
+    lyrics: str | None = None
+    price: float | None = None
+    style: str | None = None
+    tags: str | None = None
+    title: str | None = None
+    vocalGender: str | None = None
+    createdAt: datetime
+    releasedAt: datetime | None = None
+    updatedAt: datetime
+    taskId: str | None = None
+    owner_name: str | None = None
+    owner_email: str | None = None
 
 class PublishMusicResponse(BaseModel):
     trackId: str
@@ -105,6 +124,7 @@ class UnsavedTrackItem(BaseModel):
     taskId: str | None = None
 
 class UnsavedTracksResponse(BaseModel):
+    trackId: str | None = None
     lyrics: str | None = None
     style: str | None = None
     title: str | None = None
@@ -144,6 +164,7 @@ async def generate_lyrics(
         return {
             "trackId": track.id,
             "title": track.title,
+            "lyrics": track.lyrics,
         }
     except (RuntimeError, ValueError) as e:
         raise HTTPException(
@@ -178,10 +199,8 @@ async def generate_music(
             request.weirdness_constraint,
         )
 
-        final_track_id = request.track_id
-
         if request.track_id:
-            await prisma.musictrack.update(
+            track = await prisma.musictrack.update(
                 where={"id": request.track_id},
                 data={
                     "taskId": task_id,
@@ -192,10 +211,11 @@ async def generate_music(
                     "styleWeight": request.style_weight,
                     "weirdnessConstraint": request.weirdness_constraint,
                     "status": "processing",
-                }
+                },
+                include={"user": True}
             )
         else:
-            new_track = await prisma.musictrack.create(
+            track = await prisma.musictrack.create(
                 data={
                     "userId": user_id,
                     "taskId": task_id,
@@ -206,13 +226,14 @@ async def generate_music(
                     "styleWeight": request.style_weight,
                     "weirdnessConstraint": request.weirdness_constraint,
                     "status": "processing",
-                }
+                },
+                include={"user": True}
             )
-            final_track_id = new_track.id
 
         return {
-            "trackId": final_track_id,
-            "title": music_specs.get("title"),
+            **track.model_dump(),
+            "owner_name": track.user.name if track.user else None,
+            "owner_email": track.user.email if track.user else None,
         }
     except (RuntimeError, ValueError) as e:
         raise HTTPException(
@@ -270,6 +291,7 @@ async def get_unsaved_tracks(
         music_tracks.append(UnsavedTrackItem(**item))
 
     return UnsavedTracksResponse(
+        trackId=tracks[-1].id,
         lyrics=first.lyrics,
         style=first.style,
         title=first.title,
